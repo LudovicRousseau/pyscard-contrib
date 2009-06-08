@@ -238,16 +238,18 @@ def compact_tlv(historical_bytes):
     tag = tlv / 16
     len = tlv % 16
     
+    text += "    Tag: %d, Len: %d" % (tag, len)
+
     if tag == 1:
-        text += " (country code, ISO 3166-1)"
+        text += " (country code, ISO 3166-1)\n"
         text += "      Country code: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
 
     elif tag == 2:
-        text += " (issuer identification number, ISO 7812-1)";
+        text += " (issuer identification number, ISO 7812-1)\n";
         text += "      Issuer identification number: "  + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
 
     elif tag == 3:
-        text += " (card service data byte)"
+        text += " (card service data byte)\n"
         cs = historical_bytes.pop(0)
         if cs == None:
             text += "      Error in the ATR: expecting 1 byte and got 0"
@@ -256,19 +258,19 @@ def compact_tlv(historical_bytes):
             text += cs(cs)
             
     elif tag == 4:
-        text += " (initial access data)"
+        text += " (initial access data)\n"
         text += "      Initial access data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
         
     elif tag == 5:
-        text += " (card issuer's data)"
+        text += " (card issuer's data)\n"
         text += "      Card issuer data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
 
     elif tag == 6:
-        text += " (pre-issuing data)"
+        text += " (pre-issuing data)\n"
         text += "      Data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
 
     elif tag == 7:
-        text += " (card capabilities)"
+        text += " (card capabilities)\n"
         if len == 1:
             sm = historical_bytes.pop(0)
             text += "      Selection methods: %d" % sm
@@ -294,7 +296,7 @@ def compact_tlv(historical_bytes):
             text += "      wrong ATR"
 
     elif tag == 8:
-        text += " (status indicator)"
+        text += " (status indicator)\n"
         if len == 1:
             lcs = historical_bytes.pop(0)
             text += "      LCS (life card cycle): %d" % lcs
@@ -310,12 +312,16 @@ def compact_tlv(historical_bytes):
             text += "      SW: %02X %02X" % (sw1, sw2)
     
     elif tag == 15:
-        text += " (application identifier)"
+        text += " (application identifier)\n"
         text += "      Application identifier: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
 
     else:
-        text += " (unknown)"
+        text += " (unknown)\n"
         text += "      Value: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
+
+    # consume len bytes of historic
+    for i in range(len):
+        historical_bytes.pop(0)
 
     return text
 
@@ -327,6 +333,8 @@ def analyse_histrorical_bytes(historical_bytes):
     if hb_category == None:
         return text
     
+    text += "  Category indicator byte: %02X" % hb_category
+
     if hb_category == 0x00:
         text += " (compact TLV data object)\n";
 
@@ -347,7 +355,7 @@ def analyse_histrorical_bytes(historical_bytes):
         text +=  "      SW: %02X%02X (%s)" % (sw1, sw1, "") #Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
 
     elif hb_category == 0x80:
-        text += " (compact TLV data object)"
+        text += " (compact TLV data object)\n"
         while len(historical_bytes) > 0:
             text += compact_tlv(historical_bytes)
 
@@ -388,6 +396,7 @@ def atr_display_txt(atr):
         print "Historical bytes: ",
         for b in atr["hb"]:
             print "0x%02X" % b,
+        print
         print analyse_histrorical_bytes(atr["hb"])
             
 if __name__ == "__main__":
