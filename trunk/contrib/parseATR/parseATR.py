@@ -47,6 +47,10 @@ def int2bin(i, padding = 8):
 def parseATR(atr_txt):
     atr_txt = normalize(atr_txt)
     atr = {}
+
+    # the ATR itself as a list of integers
+    atr["atr"] = atr_txt
+
     # store TS and T0
     atr["TS"] = atr_txt[0]
     atr["T0"] = TDi = atr_txt[1]
@@ -91,7 +95,7 @@ def parseATR(atr_txt):
 
     # Store TCK
     if (atr.has_key("TCK")):
-        atr["TCK"] = atr_txt[pointer]
+        atr["TCK"] = atr_txt[-1]
 
     return atr
 
@@ -106,16 +110,16 @@ def TA1(v):
 def TA2(v):
     F = v >> 4
     D = v & 0xF
-    text = "Protocol to be used in spec mode: T=%s" % (D),
+    text = "Protocol to be used in spec mode: T=%s" % (D)
     if (F & 0x8):
-        text = text + " - Unable to change",
+        text += " - Unable to change"
     else:
-        text = text + " - Capable to change",
+        text += " - Capable to change"
 
     if (F & 0x1):
-        text = text + " - implicity defined"
+        text += " - implicity defined"
     else:
-        text = text + " - defined by interface bytes"
+        text += " - defined by interface bytes"
 
     return text
 
@@ -181,9 +185,9 @@ def TBn(i, v):
     return text
 
 def TC1(v):
-    text = "Extra guard time:", v,
+    text = "Extra guard time: %d" % v
     if (v == 255):
-        text += "(special value)"
+        text += " (special value)"
     return text
 
 def TC2(v):
@@ -198,9 +202,9 @@ def TC4(v):
 def TCn(i, v):
     text = ""
     if (T == 1):
-        text = "Error detection code: ",
+        text = "Error detection code: "
         if (v == 1):
-            text += "CRC";
+            text += "CRC"
         else:
             if (v == 0):
                 text += "LRC"
@@ -333,7 +337,7 @@ def analyse_histrorical_bytes(historical_bytes):
     if hb_category == None:
         return text
     
-    text += "  Category indicator byte: %02X" % hb_category
+    text += "  Category indicator byte: 0x%02X" % hb_category
 
     if hb_category == 0x00:
         text += " (compact TLV data object)\n";
@@ -372,6 +376,15 @@ def analyse_histrorical_bytes(historical_bytes):
 
     return text
 
+def compute_tck(atr):
+    # do not include TS byte
+    s = atr["atr"][0];
+    for e in atr["atr"]:
+        s ^= e
+    # remove TCK
+    s ^= atr["atr"][-1];
+    return s
+
 def atr_display_txt(atr):
     TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
     print "TS = 0x%02X --> %s" % (atr["TS"], TS[atr["TS"]])
@@ -398,8 +411,18 @@ def atr_display_txt(atr):
             print "0x%02X" % b,
         print
         print analyse_histrorical_bytes(atr["hb"])
-            
+
+    if (atr.has_key("TCK")):
+        print ("TCK = 0x%02X" % atr["TCK"]),
+        tck = compute_tck(atr)
+        if tck == atr["TCK"]:
+            print "(correct checksum)"
+        else:
+            print "WRONG CHECKSUM, expected 0x%02X" % tck
+
 if __name__ == "__main__":
-    atr = parseATR("3B A7 00 40 18 80 65 A2 08 01 01 52")
-    #atr = parseATR("3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42")
+    #ATR = "3B A7 00 40 18 80 65 A2 08 01 01 52"
+    ATR = "3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42 30 36 4E"
+    atr = parseATR(ATR)
+    print "ATR:", ATR
     atr_display_txt(atr)
