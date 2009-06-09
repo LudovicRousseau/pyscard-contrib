@@ -421,8 +421,12 @@ def atr_display_txt(atr):
             print "WRONG CHECKSUM, expected 0x%02X" % tck
 
 if __name__ == "__main__":
-    #ATR = "3B A7 00 40 18 80 65 A2 08 01 01 52"
-    ATR = "3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42 30 36 4E"
+    import sys
+    if len(sys.argv) > 1:
+        ATR = " ".join(sys.argv[1:])
+    else:
+        #ATR = "3B A7 00 40 18 80 65 A2 08 01 01 52"
+        ATR = "3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42 30 36 4E"
     atr = parseATR(ATR)
     print "ATR:", ATR
     atr_display_txt(atr)
