@@ -54,6 +54,7 @@ def parseATR(atr_txt):
     # store TS and T0
     atr["TS"] = atr_txt[0]
     atr["T0"] = TDi = atr_txt[1]
+    hb_length = atr["T0"] & 15
     pointer = 1
     # protocol number
     pn = 1
@@ -91,7 +92,10 @@ def parseATR(atr_txt):
     atr["pn"] = pn
     
     # Store historical bytes
-    atr["hb"] = atr_txt[pointer+1:]
+    atr["hb"] = atr_txt[pointer+1:pointer+1+hb_length]
+    
+    if len(atr["hb"]) < hb_length:
+        raise Exception("ERROR! ATR is truncated: %d byte(s) is/are missing" % (hb_length-len(atr["hb"])))
 
     # Store TCK
     if (atr.has_key("TCK")):
@@ -110,18 +114,18 @@ def TA1(v):
 def TA2(v):
     F = v >> 4
     D = v & 0xF
-    text = "Protocol to be used in spec mode: T=%s" % (D)
+    text = ["Protocol to be used in spec mode: T=%s" % (D)]
     if (F & 0x8):
-        text += " - Unable to change"
+        text.append(" - Unable to change")
     else:
-        text += " - Capable to change"
+        text.append(" - Capable to change")
 
     if (F & 0x1):
-        text += " - implicity defined"
+        text.append(" - implicity defined")
     else:
-        text += " - defined by interface bytes"
+        text.append(" - defined by interface bytes")
 
-    return text
+    return ''.join(text)
 
 def TA3(v):
     return TAn(3, v)
@@ -136,20 +140,20 @@ def TAn(i, v):
     else:
         F = v >> 6
         D = v % 64
-        Class = "(3G) "
+        Class = ["(3G) "]
 
         if (D & 0x1):
-            Class += "A 5V "
+            Class.append("A 5V ")
         if (D & 0x2):
-            Class += "B 3V "
+            Class.append("B 3V ")
         if (D & 0x4):
-            Class += "C 1.8V "
+            Class.append("C 1.8V ")
         if (D & 0x8):
-            Class += "D RFU "
+            Class.append("D RFU ")
         if (D & 0x10):
-            Class += "E RFU"
+            Class.append("E RFU")
 
-        text = "Clock stop: %s - Class accepted by the card: %s" % (XI[F],Class)
+        text = "Clock stop: %s - Class accepted by the card: %s" % (XI[F],''.join(Class))
     return text
 
 def TB1(v):
@@ -162,12 +166,12 @@ def TB1(v):
     return text
 
 def TB2(v):
-    text = "Programming param PI2 (PI1 should be ignored): %d" % v,
+    text = ["Programming param PI2 (PI1 should be ignored): %d" % v,]
     if ((v>49) or (v<251)):
-        text += " (dV)"
+        text.append(" (dV)")
     else:
-        text += " is RFU"
-    return text
+        text.append(" is RFU")
+    return ''.join(text)
 
 def TB3(v):
     return TBn(3, v)
@@ -185,10 +189,10 @@ def TBn(i, v):
     return text
 
 def TC1(v):
-    text = "Extra guard time: %d" % v
+    text = ["Extra guard time: %d" % v]
     if (v == 255):
-        text += " (special value)"
-    return text
+        text.append(" (special value)")
+    return ''.join(text)
 
 def TC2(v):
     return "Work waiting time: 960 x %d x (Fi/F)" % v
@@ -200,17 +204,17 @@ def TC4(v):
     return TCn(4, v)
 
 def TCn(i, v):
-    text = ""
+    text = []
     if (T == 1):
-        text = "Error detection code: "
+        text.append("Error detection code: ")
         if (v == 1):
-            text += "CRC"
+            text.append("CRC")
         else:
             if (v == 0):
-                text += "LRC"
+                text.append("LRC")
             else:
-                text += "RFU"
-    return text
+                text.append("RFU")
+    return ''.join(text)
 
 def TD1(v):
     return TDn(1, v)
@@ -231,6 +235,169 @@ def TDn(i, v):
     text = "Y(i+1) = b%s, Protocol T=%d" % (int2bin(Y,4), T)
     return text
 
+def life_cycle_status(lcs):
+    # Table 13 - Life cycle status byte
+    # ISO 7816-4:2004, page 21
+    if lcs > 15:
+        text = "Proprietary"
+
+    if lcs == 0:
+        text = "No information given"
+    if lcs == 1:
+        text = "Creation state"
+    if lcs == 3:
+        text = "Initialisation state"
+    if lcs in [4, 6]:
+        text = "Operational state (deactivated)"
+    if lcs in [5, 7]:
+        text = "Operational state (activated)"
+    if lcs in [12, 13, 14, 15]:
+        text = "Termination state"
+
+    return text
+
+def data_coding(dc):
+    # Table 87 - Second software function table (data coding byte) 
+    # ISO 7816-4:2004, page 60
+    text = []
+
+    if dc & 128:
+        text.append("        - EF of TLV structure supported\n")
+
+    # get bits 6 and 7
+    text.append("        - Behaviour of write functions: ")
+    v = (dc & (64+32)) >> 5
+    t = ["one-time write\n", "proprietary\n", "write OR\n", "write AND\n"]
+    text.append(t[v])
+
+    text.append("        - Value 'FF' for the first byte of BER-TLV tag fields: ")
+    if dc & 16:
+        text.append("in")
+    text.append("valid\n")
+
+    text.append("        - Data unit in quartets: %d" % (dc & 15))
+    
+    return ''.join(text)
+
+def selection_methods(sm):
+    # Table 86 - First software function table (selection methods)
+    # ISO 7816-4:2004, page 60
+    text = []
+
+    if sm & 1:
+        text.append("        - Record identifier supported\n")
+    
+    if sm & 2:
+        text.append("        - Record number supported\n")
+
+    if sm & 4:
+        text.append("        - Short EF identifier supported\n")
+
+    if sm & 8:
+        text.append("        - Implicit DF selection\n")
+    
+    if sm & 16:
+        text.append("        - DF selection by file identifier\n")
+
+    if sm & 32:
+        text.append("        - DF selection by path\n")
+
+    if sm & 64:
+        text.append("        - DF selection by partial DF name\n")
+
+    if sm & 128:
+        text.append("        - DF selection by full DF name\n")
+
+    return ''.join(text)
+        
+def selection_mode(sm):
+    # Table 87 - Second software function table (data coding byte)
+    # ISO 7816-4:2004, page 60
+    text = []
+
+    if sm & 1:
+        text.append("        - Record identifier supported\n")
+
+    if sm & 2:
+        text.append("        - Record number supported\n")
+
+    if sm & 4:
+        text.append("        - Short EF identifier supported\n")
+
+    if sm & 8:
+        text.append("        - Implicit DF selection\n")
+
+    if sm & 16:
+        text.append("        - DF selection by file identifier\n")
+
+    if sm & 32:
+        text.append("        - DF selection by path\n")
+
+    if  sm & 64:
+        text.append("        - DF selection by partial DF name\n")
+
+    if sm & 128:
+        text.append("        - DF selection by full DF name\n")
+
+    return ''.join(text)
+
+def command_chaining(cc):
+    # Table 88 - Third software function table (command chaining, length fields and logical channels)
+    # ISO 7816-4:2004, page 61
+    text = []
+
+    if cc & 128:
+        text.append("        - Command chaining\n")
+
+    if cc & 64:
+        text.append("        - Extended Lc and Le fields\n")
+        
+    if cc & 32:
+        text.append("        - RFU (should not happen)\n")
+
+    v = (cc >> 3) & 3
+    t = ["No logical channel\n", "by the interface device\n", "by the card\n", "by the interface device and card\n"]
+    text.append(t[v])
+
+    text.append("        - Maximum number of logical channels: %d\n" % (cc & 7))
+
+    return ''.join(text)
+
+def card_service(cs):
+    # Table 85 - Card service data byte
+    # ISO 7816-4:2004, page 59
+    text = []
+
+    if cs & 128:
+        text.append("        - Application selection: by full DF name\n")
+
+    if cs & 64:
+        text.append("        - Application selection: by partial DF name\n")
+
+    if cs & 32:
+        text.append("        - BER-TLV data objects available in EF.DIR\n")
+
+    if cs & 16:
+        text.append("        - BER-TLV data objects available in EF.ATR\n")
+    
+    text.append("        - EF.DIR and EF.ATR access services: ")
+    v = (cs >> 1) & 7
+    if v == 4:
+        text.append("by READ BINARY command\n")
+    elif v == 2:
+        text.append("by GET DATA command\n")
+    elif v == 0:
+        text.append("by GET RECORD(s) command\n")
+    else:
+        text.append("reverved for future use\n")
+
+    if cs & 1:
+        text.append("        - Card without MF\n")
+    else:
+        text.append("        - Card with MF\n")
+    
+    return ''.join(text)
+
 def compact_tlv(historical_bytes):
     text = ""
     tlv = historical_bytes.pop(0)
@@ -242,137 +409,146 @@ def compact_tlv(historical_bytes):
     tag = tlv / 16
     len = tlv % 16
     
-    text += "    Tag: %d, Len: %d" % (tag, len)
+    text = []
+    text.append("    Tag: %d, Len: %d" % (tag, len))
 
     if tag == 1:
-        text += " (country code, ISO 3166-1)\n"
-        text += "      Country code: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
+        text.append(" (country code, ISO 3166-1)\n")
+        text.append("      Country code: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
 
     elif tag == 2:
-        text += " (issuer identification number, ISO 7812-1)\n";
-        text += "      Issuer identification number: "  + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
+        text.append(" (issuer identification number, ISO 7812-1)\n")
+        text.append("      Issuer identification number: "  + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
 
     elif tag == 3:
-        text += " (card service data byte)\n"
-        cs = historical_bytes.pop(0)
-        if cs == None:
-            text += "      Error in the ATR: expecting 1 byte and got 0"
+        text.append(" (card service data byte)\n")
+        try:
+            cs = historical_bytes[0]
+        except IndexError:
+            text.append("Error in the ATR: expecting 1 byte and got 0\n")
         else:
-            text += "      Card service data byte: %d" % cs
-            text += cs(cs)
+            if cs == None:
+                text.append("      Error in the ATR: expecting 1 byte and got 0")
+            else:
+                text.append("      Card service data byte: %d" % cs)
+                text.append(card_service(cs))
             
     elif tag == 4:
-        text += " (initial access data)\n"
-        text += "      Initial access data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
+        text.append(" (initial access data)\n")
+        text.append("      Initial access data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
         
     elif tag == 5:
-        text += " (card issuer's data)\n"
-        text += "      Card issuer data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
+        text.append(" (card issuer's data)\n")
+        text.append("      Card issuer data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
 
     elif tag == 6:
-        text += " (pre-issuing data)\n"
-        text += "      Data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
+        text.append(" (pre-issuing data)\n")
+        text.append("      Data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
 
     elif tag == 7:
-        text += " (card capabilities)\n"
+        text.append(" (card capabilities)\n")
         if len == 1:
-            sm = historical_bytes.pop(0)
-            text += "      Selection methods: %d" % sm
-            text += sm(sm)
+            try:
+                sm = historical_bytes[0]
+            except:
+                text.append("Error in the ATR: expecting 1 byte and got 0\n")
+            else:
+                text.append("      Selection methods: %d" % sm)
+                text.append(selection_mode(sm))
         elif len == 2:
-            sm = historical_bytes.pop(0)
-            dc = historical_bytes.pop(0)
-            text += "      Selection methods: %d" % sm
-            text += sm(sm)
-            text += "      Data coding byte: %d" % dc
-            text += dc(dc)
+            sm = historical_bytes[0]
+            dc = historical_bytes[1]
+            text.append("      Selection methods: %d" % sm)
+            text.append(selection_methods(sm))
+            text.append("      Data coding byte: %d" % dc)
+            text.append(data_coding(dc))
         elif len == 3:
-            sm = historical_bytes.pop(0)
-            dc = historical_bytes.pop(0)
-            cc = historical_bytes.pop(0)
-            text += "      Selection methods: %d" % sm
-            text += sm(sm)
-            text += "      Data coding byte: %d" % dc
-            text += dc(dc)
-            text += "      Command chaining, length fields and logical channels: %d" % cc
-            text += cc(cc)
+            sm = historical_bytes[0]
+            dc = historical_bytes[1]
+            cc = historical_bytes[2]
+            text.append("      Selection methods: %d" % sm)
+            text.append(selection_mode(sm))
+            text.append("      Data coding byte: %d" % dc)
+            text.append(data_coding(dc))
+            text.append("      Command chaining, length fields and logical channels: %d" % cc)
+            text.append(command_chaining(cc))
         else:
-            text += "      wrong ATR"
+            text.append("      wrong ATR")
 
     elif tag == 8:
-        text += " (status indicator)\n"
+        text.append(" (status indicator)\n")
         if len == 1:
-            lcs = historical_bytes.pop(0)
-            text += "      LCS (life card cycle): %d" % lcs
+            lcs = historical_bytes[0]
+            text.append("      LCS (life card cycle): %d" % lcs)
         elif len == 2:
-            sw1 = historical_bytes.pop(0)
-            sw2 = historical_bytes.pop(0)
-            text += "      SW: %02X %02X" % (sw1, sw2)
+            sw1 = historical_bytes[0]
+            sw2 = historical_bytes[1]
+            text.append("      SW: %02X %02X" % (sw1, sw2))
         elif len == 3:
-            lcs = historical_bytes.pop(0)
-            sw1 = historical_bytes.pop(0)
-            sw2 = historical_bytes.pop(0)
-            text += "      LCS (life card cycle): %d" % lcs
-            text += "      SW: %02X %02X" % (sw1, sw2)
+            lcs = historical_bytes[0]
+            sw1 = historical_bytes[1]
+            sw2 = historical_bytes[2]
+            text.append("      LCS (life card cycle): %d" % lcs)
+            text.append("      SW: %02X %02X" % (sw1, sw2))
     
     elif tag == 15:
-        text += " (application identifier)\n"
-        text += "      Application identifier: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
+        text.append(" (application identifier)\n")
+        text.append("      Application identifier: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
 
     else:
-        text += " (unknown)\n"
-        text += "      Value: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX)
+        text.append(" (unknown)\n")
+        text.append("      Value: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
 
     # consume len bytes of historic
-    for i in range(len):
-        historical_bytes.pop(0)
+    del historical_bytes[0:len]
 
-    return text
+    return ''.join(text)
 
 def analyse_histrorical_bytes(historical_bytes):
-    text = ""
-    hb_category = historical_bytes.pop(0)
+    text = []
 
     # return if we have NO historical bytes
-    if hb_category == None:
-        return text
+    if len(historical_bytes) == 0:
+        return ""
+
+    hb_category = historical_bytes.pop(0)
     
-    text += "  Category indicator byte: 0x%02X" % hb_category
+    text.append("  Category indicator byte: 0x%02X" % hb_category)
 
     if hb_category == 0x00:
-        text += " (compact TLV data object)\n";
+        text.append(" (compact TLV data object)\n")
 
-        if historical_bytes.length() < 3:
-            text += "    Error in the ATR: expecting 3 bytes and got %d" % historical_bytes.length()
-            return text
+        if len(historical_bytes) < 3:
+            text.append("    Error in the ATR: expecting 3 bytes and got %d" % len(historical_bytes))
+            return ''.join(text)
 
         # get the 3 last bytes
         status = historical_bytes[-3:]
         del historical_bytes[-3:]
 
         while len(historical_bytes) > 0:
-            text += compact_tlv(historical_bytes)
+            text.append(compact_tlv(historical_bytes))
 
         (lcs, sw1, sw2) = status[:3]
-        text += "    Mandatory status indicator (3 last bytes)\n";
-        text += "      LCS (life card cycle): %d (%s)" % (lcs, lcs(lcs))
-        text +=  "      SW: %02X%02X (%s)" % (sw1, sw1, "") #Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
+        text.append("    Mandatory status indicator (3 last bytes)\n")
+        text.append("      LCS (life card cycle): %d (%s)" % (lcs, life_cycle_status(lcs)))
+        text.append( "      SW: %02X%02X (%s)" % (sw1, sw1, "")) #Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
 
     elif hb_category == 0x80:
-        text += " (compact TLV data object)\n"
+        text.append(" (compact TLV data object)\n")
         while len(historical_bytes) > 0:
-            text += compact_tlv(historical_bytes)
+            text.append(compact_tlv(historical_bytes))
 
     elif hb_category == 0x10:
-        text += " (next byte is the DIR data reference)"
+        text.append(" (next byte is the DIR data reference)")
         data_ref = historical_bytes.pop(0)
-        text += "   DIR data reference: %d", data_ref
+        text.append("   DIR data reference: %d" % data_ref)
 
     elif hb_category in (0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F):
-        text += " (Reserved for future use)";
+        text.append(" (Reserved for future use)")
 
     else:
-        text += " (proprietary format)";
+        text.append(" (proprietary format)")
 
     return text
 
