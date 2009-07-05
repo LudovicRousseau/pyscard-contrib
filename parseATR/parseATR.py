@@ -550,7 +550,7 @@ def analyse_histrorical_bytes(historical_bytes):
     else:
         text.append(" (proprietary format)")
 
-    return text
+    return ''.join(text)
 
 def compute_tck(atr):
     # do not include TS byte
@@ -561,13 +561,25 @@ def compute_tck(atr):
     s ^= atr["atr"][-1];
     return s
 
+def colorize_txt(l):
+    magenta = "\033[35m"
+    normal = "\033[0m"
+    text = l[0]
+    if len(l) > 1:
+        text += magenta + "".join(l[1:]) + normal
+    return text
+
 def atr_display_txt(atr):
+    return atr_display(atr, colorize_txt)
+
+def atr_display(atr, colorize):
+    text = []
     TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
-    print "TS = 0x%02X --> %s" % (atr["TS"], TS[atr["TS"]])
+    text.append(["TS = 0x%02X --> " % atr["TS"], TS[atr["TS"]]])
 
     Y1 = atr["T0"] >> 4
     K = atr["T0"] & 0xF
-    print "T0 = 0x%02X, Y(1): b%s, K: %d (historical bytes)" % (atr["T0"], int2bin(Y1, padding = 4), K)
+    text.append(["T0 = 0x%02X --> " % atr["T0"], "Y(1): b%s, K: %d (historical bytes)" % (int2bin(Y1, padding = 4), K)])
 
     for i in (1, 2, 3, 4):
         separator = False
@@ -575,26 +587,30 @@ def atr_display_txt(atr):
             key = "T%s%d" % (p, i)
             if (atr.has_key(key)):
                 v = atr[key]
-                print " T%s(%d) = 0x%02X -->" % (p, i, v),
-                print eval("%s(%d)" % (key, v))
+                t = [" T%s(%d) = 0x%02X --> " % (p, i, v)]
+                t.append(eval("%s(%d)" % (key, v)))
+                text.append(t)
                 separator = True
         if separator:
-            print "----"
+            text.append("----")
 
     if (atr.has_key("hb")):
-        print "Historical bytes: ",
-        for b in atr["hb"]:
-            print "0x%02X" % b,
-        print
-        print analyse_histrorical_bytes(atr["hb"])
+        t = ["Historical bytes: "]
+        t.append(smartcard.util.toHexString(atr["hb"], smartcard.util.HEX))
+        text.append(t)
+
+        text.append(analyse_histrorical_bytes(atr["hb"]))
 
     if (atr.has_key("TCK")):
-        print ("TCK = 0x%02X" % atr["TCK"]),
+        t = ["TCK = 0x%02X " % atr["TCK"]]
         tck = compute_tck(atr)
         if tck == atr["TCK"]:
-            print "(correct checksum)"
+            t.append("(correct checksum)")
         else:
-            print "WRONG CHECKSUM, expected 0x%02X" % tck
+            t.append("WRONG CHECKSUM, expected 0x%02X" % tck)
+        text.append(t)
+
+    return "\n".join([colorize(t) for t in text])
 
 if __name__ == "__main__":
     import sys
@@ -605,4 +621,5 @@ if __name__ == "__main__":
         ATR = "3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42 30 36 4E"
     atr = parseATR(ATR)
     print "ATR:", ATR
-    atr_display_txt(atr)
+    text = atr_display_txt(atr)
+    print text
