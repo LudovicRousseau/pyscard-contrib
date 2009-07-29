@@ -36,5 +36,16 @@ if __name__ == "__main__":
             continue
         if "?" in atr:
             continue
-        print atr
-        parseATR.atr_display_txt(parseATR.parseATR(atr))
+
+        # remove traling newline
+        atr = atr.rstrip()
+        print "ATR:", atr
+
+        try:
+            txt = parseATR.atr_display_txt(parseATR.parseATR(atr))
+        except parseATR.ParseAtrException, e:
+            print e
+        else:
+            print txt
+
+        print
