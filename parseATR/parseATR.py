@@ -24,6 +24,10 @@ ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
 T = -1
 
+class ParseAtrException(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
 def normalize(atr):
     """ transform an ATR in list of integers
     valid input formats are
@@ -95,7 +99,12 @@ def parseATR(atr_txt):
     atr["hb"] = atr_txt[pointer+1:pointer+1+hb_length]
     
     if len(atr["hb"]) < hb_length:
-        raise Exception("ERROR! ATR is truncated: %d byte(s) is/are missing" % (hb_length-len(atr["hb"])))
+        missing = hb_length-len(atr["hb"])
+        if missing > 1:
+            (t1, t2) = ("s", "are")
+        else:
+            (t1, t2) = ("", "is")
+        raise ParseAtrException("ERROR! ATR is truncated: %d byte%s %s missing" % (missing, t1, t2))
 
     # Store TCK
     if (atr.has_key("TCK")):
@@ -106,10 +115,11 @@ def parseATR(atr_txt):
 def TA1(v):
     Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024, 1536, 2048, "RFU", "RFU")
     Di = ("RFU", 1, 2, 4, 8, 16, 32, "RFU", 12, 20, "RFU", "RFU", "RFU", "RFU", "RFU", "RFU")
+    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU", "RFU") 
     F = v >> 4
     D = v & 0xF
     value = Fi[F]/Di[D]
-    return "Fi=%s, Di=%s, %g cycles/ETU (%d bits/s at 3.57 MHz)" % (Fi[F], Di[D], value, 3571200/value)
+    return "Fi=%s, Di=%s, %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)" % (Fi[F], Di[D], value, 4000000/value, FMax[F]*1000000/value, FMax[F])
 
 def TA2(v):
     F = v >> 4
@@ -572,6 +582,32 @@ def colorize_txt(l):
 def atr_display_txt(atr):
     return atr_display(atr, colorize_txt)
 
+html_escape_table = {
+    "&": "&amp;",
+    '"': "&quot;",
+    "'": "&apos;",
+    ">": "&gt;",
+    "<": "&lt;",
+    }
+
+def html_escape(text):
+    """Produce entities within text."""
+    L=[]
+    for c in text:
+        L.append(html_escape_table.get(c,c))
+    return "".join(L)
+
+def colorize_html(l):
+    text = '<span class="left">' + html_escape(l[0]) + '</span>'
+    if len(l) > 1:
+        text += '<span class="right">' + html_escape("".join(l[1:])) + '</span>'
+    else:
+        text = l[0]
+    return text
+
+def atr_display_html(atr):
+    return atr_display(atr, colorize_html)
+
 def atr_display(atr, colorize):
     text = []
     TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
@@ -599,7 +635,9 @@ def atr_display(atr, colorize):
         t.append(smartcard.util.toHexString(atr["hb"], smartcard.util.HEX))
         text.append(t)
 
-        text.append(analyse_histrorical_bytes(atr["hb"]))
+        t = analyse_histrorical_bytes(atr["hb"])
+        if t:
+            text.append(t)
 
     if (atr.has_key("TCK")):
         t = ["TCK = 0x%02X " % atr["TCK"]]
