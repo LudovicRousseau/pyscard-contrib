@@ -18,8 +18,6 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-import smartcard.util
-
 ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
 T = -1
@@ -27,6 +25,10 @@ T = -1
 class ParseAtrException(Exception):
     """Base class for exceptions in this module."""
     pass
+
+def toHexString(bytes=[]):
+    """ return a hex list """
+    return " ".join(["%02X" % b for b in bytes])
 
 def normalize(atr):
     """ transform an ATR in list of integers
@@ -424,11 +426,11 @@ def compact_tlv(historical_bytes):
 
     if tag == 1:
         text.append(" (country code, ISO 3166-1)\n")
-        text.append("      Country code: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
+        text.append("      Country code: " + toHexString(historical_bytes[:len]))
 
     elif tag == 2:
         text.append(" (issuer identification number, ISO 7812-1)\n")
-        text.append("      Issuer identification number: "  + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
+        text.append("      Issuer identification number: "  + toHexString(historical_bytes[:len]))
 
     elif tag == 3:
         text.append(" (card service data byte)\n")
@@ -445,15 +447,15 @@ def compact_tlv(historical_bytes):
             
     elif tag == 4:
         text.append(" (initial access data)\n")
-        text.append("      Initial access data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
+        text.append("      Initial access data: " + toHexString(historical_bytes[:len]))
         
     elif tag == 5:
         text.append(" (card issuer's data)\n")
-        text.append("      Card issuer data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
+        text.append("      Card issuer data: " + toHexString(historical_bytes[:len]))
 
     elif tag == 6:
         text.append(" (pre-issuing data)\n")
-        text.append("      Data: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
+        text.append("      Data: " + toHexString(historical_bytes[:len]))
 
     elif tag == 7:
         text.append(" (card capabilities)\n")
@@ -503,11 +505,11 @@ def compact_tlv(historical_bytes):
     
     elif tag == 15:
         text.append(" (application identifier)\n")
-        text.append("      Application identifier: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
+        text.append("      Application identifier: " + toHexString(historical_bytes[:len]))
 
     else:
         text.append(" (unknown)\n")
-        text.append("      Value: " + smartcard.util.toHexString(historical_bytes[:len], smartcard.util.HEX))
+        text.append("      Value: " + toHexString(historical_bytes[:len]))
 
     # consume len bytes of historic
     del historical_bytes[0:len]
@@ -632,7 +634,7 @@ def atr_display(atr, colorize):
 
     if (atr.has_key("hb")):
         t = ["Historical bytes: "]
-        t.append(smartcard.util.toHexString(atr["hb"], smartcard.util.HEX))
+        t.append(toHexString(atr["hb"]))
         text.append(t)
 
         t = analyse_histrorical_bytes(atr["hb"])
