@@ -22,9 +22,14 @@ ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
 T = -1
 
-class ParseAtrException(Exception):
+import exceptions
+class ParseAtrException(exceptions.Exception):
     """Base class for exceptions in this module."""
-    pass
+    def __init__(self, text):
+        self.text = text
+
+    def __str__(self):
+        return self.text
 
 def toHexString(bytes=[]):
     """ return a hex list """
