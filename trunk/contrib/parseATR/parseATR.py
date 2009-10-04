@@ -652,6 +652,25 @@ def atr_display(atr, colorize):
 
     return "\n".join([colorize(t) for t in text])
 
+def match_atr(atr):
+    """ try to find card description for a given ATR """
+    card = []
+    file = open("smartcard_list.txt")
+    for line in file:
+        if line.startswith("#"):
+            continue
+        line = line.rstrip("\n")
+
+        if line == atr:
+            # found the ATR
+            for desc in file:
+                if desc == "\n":
+                    break;
+                # get all the possible card descriptions
+                card.append(desc.strip())
+    file.close()
+    return card
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
@@ -663,3 +682,9 @@ if __name__ == "__main__":
     print "ATR:", ATR
     text = atr_display_txt(atr)
     print text
+
+    card = match_atr(ATR)
+    if card:
+        print "\nPossibly identified card:", " ".join(card)
+    else:
+        print "\nUnknown card"
