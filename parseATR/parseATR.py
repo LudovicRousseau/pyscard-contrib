@@ -576,7 +576,7 @@ def colorize_txt(l):
     normal = "\033[0m"
     text = l[0]
     if len(l) > 1:
-        text += magenta + "".join(l[1:]) + normal
+        text += " --> " + magenta + "".join(l[1:]) + normal
     return text
 
 def atr_display_txt(atr):
@@ -611,11 +611,11 @@ def atr_display_html(atr):
 def atr_display(atr, colorize):
     text = []
     TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
-    text.append(["TS = 0x%02X --> " % atr["TS"], TS[atr["TS"]]])
+    text.append(["TS = 0x%02X" % atr["TS"], TS[atr["TS"]]])
 
     Y1 = atr["T0"] >> 4
     K = atr["T0"] & 0xF
-    text.append(["T0 = 0x%02X --> " % atr["T0"], "Y(1): b%s, K: %d (historical bytes)" % (int2bin(Y1, padding = 4), K)])
+    text.append(["T0 = 0x%02X" % atr["T0"], "Y(1): b%s, K: %d (historical bytes)" % (int2bin(Y1, padding = 4), K)])
 
     for i in (1, 2, 3, 4):
         separator = False
@@ -623,12 +623,12 @@ def atr_display(atr, colorize):
             key = "T%s%d" % (p, i)
             if (atr.has_key(key)):
                 v = atr[key]
-                t = [" T%s(%d) = 0x%02X --> " % (p, i, v)]
+                t = [" T%s(%d) = 0x%02X" % (p, i, v)]
                 t.append(eval("%s(%d)" % (key, v)))
                 text.append(t)
                 separator = True
         if separator:
-            text.append("----")
+            text.append(["----"])
 
     if (atr.has_key("hb")):
         t = ["Historical bytes: "]
