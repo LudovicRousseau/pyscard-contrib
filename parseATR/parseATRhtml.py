@@ -38,7 +38,10 @@ footer = """</table>
 def colorize(l):
     text = '<tr><th align="right">' + html_escape(l[0]) + '</th>'
     if len(l) > 1:
-        text += '<th align="left">' + html_escape("".join(l[1:])) + '</th></tr>'
+        t =  html_escape("".join(l[1:]))
+        if '\n' in t:
+            t = "<pre>" + t + "</pre>"
+        text += '<th align="left">' + t + '</th></tr>'
     return text
 
 if __name__ == "__main__":
