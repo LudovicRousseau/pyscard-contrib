@@ -638,7 +638,7 @@ def atr_display(atr, colorize):
             text.append(["----"])
 
     if (atr.has_key("hb")):
-        t = ["Historical bytes: "]
+        t = ["Historical bytes"]
         t.append(toHexString(atr["hb"]))
         text.append(t)
 
