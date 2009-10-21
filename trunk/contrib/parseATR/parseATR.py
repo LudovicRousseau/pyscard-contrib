@@ -460,7 +460,7 @@ def compact_tlv(historical_bytes):
 
     elif tag == 6:
         text.append(" (pre-issuing data)\n")
-        text.append("      Data: " + toHexString(historical_bytes[:len]))
+        text.append("      Data: " + toHexString(historical_bytes[:len]) + "\n")
 
     elif tag == 7:
         text.append(" (card capabilities)\n")
@@ -470,24 +470,24 @@ def compact_tlv(historical_bytes):
             except:
                 text.append("Error in the ATR: expecting 1 byte and got 0\n")
             else:
-                text.append("      Selection methods: %d" % sm)
+                text.append("      Selection methods: %d\n" % sm)
                 text.append(selection_mode(sm))
         elif len == 2:
             sm = historical_bytes[0]
             dc = historical_bytes[1]
-            text.append("      Selection methods: %d" % sm)
+            text.append("      Selection methods: %d\n" % sm)
             text.append(selection_methods(sm))
-            text.append("      Data coding byte: %d" % dc)
+            text.append("      Data coding byte: %d\n" % dc)
             text.append(data_coding(dc))
         elif len == 3:
             sm = historical_bytes[0]
             dc = historical_bytes[1]
             cc = historical_bytes[2]
-            text.append("      Selection methods: %d" % sm)
+            text.append("      Selection methods: %d\n" % sm)
             text.append(selection_mode(sm))
-            text.append("      Data coding byte: %d" % dc)
+            text.append("      Data coding byte: %d\n" % dc)
             text.append(data_coding(dc))
-            text.append("      Command chaining, length fields and logical channels: %d" % cc)
+            text.append("      Command chaining, length fields and logical channels: %d\n" % cc)
             text.append(command_chaining(cc))
         else:
             text.append("      wrong ATR")
@@ -567,7 +567,7 @@ def analyse_histrorical_bytes(historical_bytes):
     else:
         text.append(" (proprietary format)")
 
-    return ''.join(text)
+    return text
 
 def compute_tck(atr):
     # do not include TS byte
