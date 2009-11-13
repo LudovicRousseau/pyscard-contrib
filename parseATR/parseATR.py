@@ -455,16 +455,16 @@ def compact_tlv(historical_bytes):
             if cs == None:
                 text.append("      Error in the ATR: expecting 1 byte and got 0")
             else:
-                text.append("      Card service data byte: %d" % cs)
+                text.append("      Card service data byte: %d\n" % cs)
                 text.append(card_service(cs))
             
     elif tag == 4:
         text.append(" (initial access data)\n")
-        text.append("      Initial access data: " + toHexString(historical_bytes[:len]))
+        text.append("      Initial access data: " + toHexString(historical_bytes[:len]) + "\n")
         
     elif tag == 5:
         text.append(" (card issuer's data)\n")
-        text.append("      Card issuer data: " + toHexString(historical_bytes[:len]))
+        text.append("      Card issuer data: " + toHexString(historical_bytes[:len]) + "\n")
 
     elif tag == 6:
         text.append(" (pre-issuing data)\n")
@@ -513,7 +513,7 @@ def compact_tlv(historical_bytes):
             lcs = historical_bytes[0]
             sw1 = historical_bytes[1]
             sw2 = historical_bytes[2]
-            text.append("      LCS (life card cycle): %d" % lcs)
+            text.append("      LCS (life card cycle): %d\n" % lcs)
             text.append("      SW: %02X %02X" % (sw1, sw2))
     
     elif tag == 15:
