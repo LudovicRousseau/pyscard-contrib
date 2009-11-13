@@ -41,9 +41,17 @@ def normalize(atr):
     "3B A7 00 40 18 80 65 A2 08 01 01 52"
     "3B:A7:00:40:18:80:65:A2:08:01:01:52"
     """
-    atr = atr.replace(":", " ")
-    atr = atr.split(" ")
-    atr = map(lambda x: int(x,16), atr)
+    atr = atr.replace(":", "")
+    atr = atr.replace(" ", "")
+
+    res = []
+    while len(atr) >= 2:
+        byte, atr = atr[:2], atr[2:]
+        res.append(byte)
+    if len(atr) > 0:
+        raise ParseAtrException('warning: odd string, remainder: %r' % atr)
+
+    atr = map(lambda x: int(x,16), res)
     return atr
 
 def int2bin(i, padding = 8):
