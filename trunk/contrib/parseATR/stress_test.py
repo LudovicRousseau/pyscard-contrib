@@ -18,7 +18,8 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-import sys, string
+import sys
+import string
 import parseATR
 
 List = "/usr/local/share/pcsc/smartcard_list.txt"

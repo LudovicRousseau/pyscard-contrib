@@ -23,13 +23,17 @@ ATR_MAX_PROTOCOLS = 7
 T = -1
 
 import exceptions
+
+
 class ParseAtrException(exceptions.Exception):
     """Base class for exceptions in this module."""
+
     def __init__(self, text):
         self.text = text
 
     def __str__(self):
         return self.text
+
 
 def toHexString(bytes=[]):
     """ return a hex list """
@@ -51,16 +55,16 @@ def normalize(atr):
     if len(atr) > 0:
         raise ParseAtrException('warning: odd string, remainder: %r' % atr)
 
-    atr = map(lambda x: int(x,16), res)
+    atr = map(lambda x: int(x, 16), res)
     return atr
 
-def int2bin(i, padding = 8):
+def int2bin(i, padding=8):
     """ convert an integer into its binary representation """
     b = ""
     while i > 0:
         b = str(i % 2) + b
         i >>= 1
-    b = "0" * (padding-len(b)) +b
+    b = "0" * (padding - len(b)) + b
     return b
 
 def parseATR(atr_txt):
@@ -77,7 +81,7 @@ def parseATR(atr_txt):
     pointer = 1
     # protocol number
     pn = 1
-    
+
     # store number of historical bytes
     atr["hbn"] = TDi & 0xF
 
@@ -106,15 +110,15 @@ def parseATR(atr_txt):
             pn += 1
         else:
             break
-    
-    # Store number of protocols        
+
+    # Store number of protocols
     atr["pn"] = pn
-    
+
     # Store historical bytes
-    atr["hb"] = atr_txt[pointer+1:pointer+1+hb_length]
-    
+    atr["hb"] = atr_txt[pointer + 1: pointer + 1 + hb_length]
+
     if len(atr["hb"]) < hb_length:
-        missing = hb_length-len(atr["hb"])
+        missing = hb_length - len(atr["hb"])
         if missing > 1:
             (t1, t2) = ("s", "are")
         else:
@@ -122,7 +126,7 @@ def parseATR(atr_txt):
         raise ParseAtrException("ERROR! ATR is truncated: %d byte%s %s missing" % (missing, t1, t2))
 
     # Store TCK
-    if (atr.has_key("TCK")):
+    if "TCK" in atr:
         atr["TCK"] = atr_txt[-1]
 
     return atr
@@ -130,11 +134,11 @@ def parseATR(atr_txt):
 def TA1(v):
     Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024, 1536, 2048, "RFU", "RFU")
     Di = ("RFU", 1, 2, 4, 8, 16, 32, "RFU", 12, 20, "RFU", "RFU", "RFU", "RFU", "RFU", "RFU")
-    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU", "RFU") 
+    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU", "RFU")
     F = v >> 4
     D = v & 0xF
-    value = Fi[F]/Di[D]
-    return "Fi=%s, Di=%s, %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)" % (Fi[F], Di[D], value, 4000000/value, FMax[F]*1000000/value, FMax[F])
+    value = Fi[F] / Di[D]
+    return "Fi=%s, Di=%s, %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)" % (Fi[F], Di[D], value, 4000000 / value, FMax[F] * 1000000 / value, FMax[F])
 
 def TA2(v):
     F = v >> 4
@@ -157,7 +161,7 @@ def TA3(v):
 
 def TA4(v):
     return TAn(4, v)
-    
+
 def TAn(i, v):
     XI = ("not supported", "state L", "state H", "no preference")
     if (T == 1):
@@ -178,7 +182,7 @@ def TAn(i, v):
         if (D & 0x10):
             Class.append("E RFU")
 
-        text = "Clock stop: %s - Class accepted by the card: %s" % (XI[F],''.join(Class))
+        text = "Clock stop: %s - Class accepted by the card: %s" % (XI[F], ''.join(Class))
     return text
 
 def TB1(v):
@@ -191,8 +195,8 @@ def TB1(v):
     return text
 
 def TB2(v):
-    text = ["Programming param PI2 (PI1 should be ignored): %d" % v,]
-    if ((v>49) or (v<251)):
+    text = ["Programming param PI2 (PI1 should be ignored): %d" % v, ]
+    if ((v > 49) or (v < 251)):
         text.append(" (dV)")
     else:
         text.append(" is RFU")
@@ -209,7 +213,7 @@ def TBn(i, v):
     if (T == 1):
         BWI = v >> 4
         CWI = v % 16
-        
+
         text = "Block Waiting Integer: %d - Character Waiting Integer: %d" % (BWI, CWI)
     return text
 
@@ -257,7 +261,7 @@ def TDn(i, v):
     global T
     Y = v >> 4
     T = v & 0xF
-    text = "Y(i+1) = b%s, Protocol T=%d" % (int2bin(Y,4), T)
+    text = "Y(i+1) = b%s, Protocol T=%d" % (int2bin(Y, 4), T)
     return text
 
 def life_cycle_status(lcs):
@@ -282,7 +286,7 @@ def life_cycle_status(lcs):
     return text
 
 def data_coding(dc):
-    # Table 87 - Second software function table (data coding byte) 
+    # Table 87 - Second software function table (data coding byte)
     # ISO 7816-4:2004, page 60
     text = []
 
@@ -291,7 +295,7 @@ def data_coding(dc):
 
     # get bits 6 and 7
     text.append("        - Behaviour of write functions: ")
-    v = (dc & (64+32)) >> 5
+    v = (dc & (64 + 32)) >> 5
     t = ["one-time write\n", "proprietary\n", "write OR\n", "write AND\n"]
     text.append(t[v])
 
@@ -301,7 +305,7 @@ def data_coding(dc):
     text.append("valid\n")
 
     text.append("        - Data unit in quartets: %d" % (dc & 15))
-    
+
     return ''.join(text)
 
 def selection_methods(sm):
@@ -311,7 +315,7 @@ def selection_methods(sm):
 
     if sm & 1:
         text.append("        - Record identifier supported\n")
-    
+
     if sm & 2:
         text.append("        - Record number supported\n")
 
@@ -320,7 +324,7 @@ def selection_methods(sm):
 
     if sm & 8:
         text.append("        - Implicit DF selection\n")
-    
+
     if sm & 16:
         text.append("        - DF selection by file identifier\n")
 
@@ -334,7 +338,7 @@ def selection_methods(sm):
         text.append("        - DF selection by full DF name\n")
 
     return ''.join(text)
-        
+
 def selection_mode(sm):
     # Table 87 - Second software function table (data coding byte)
     # ISO 7816-4:2004, page 60
@@ -376,7 +380,7 @@ def command_chaining(cc):
 
     if cc & 64:
         text.append("        - Extended Lc and Le fields\n")
-        
+
     if cc & 32:
         text.append("        - RFU (should not happen)\n")
 
@@ -404,7 +408,7 @@ def card_service(cs):
 
     if cs & 16:
         text.append("        - BER-TLV data objects available in EF.ATR\n")
-    
+
     text.append("        - EF.DIR and EF.ATR access services: ")
     v = (cs >> 1) & 7
     if v == 4:
@@ -420,7 +424,7 @@ def card_service(cs):
         text.append("        - Card without MF\n")
     else:
         text.append("        - Card with MF\n")
-    
+
     return ''.join(text)
 
 def compact_tlv(historical_bytes):
@@ -433,7 +437,7 @@ def compact_tlv(historical_bytes):
 
     tag = tlv / 16
     len = tlv % 16
-    
+
     text = []
     text.append("    Tag: %d, Len: %d" % (tag, len))
 
@@ -443,7 +447,7 @@ def compact_tlv(historical_bytes):
 
     elif tag == 2:
         text.append(" (issuer identification number, ISO 7812-1)\n")
-        text.append("      Issuer identification number: "  + toHexString(historical_bytes[:len]))
+        text.append("      Issuer identification number: " + toHexString(historical_bytes[:len]))
 
     elif tag == 3:
         text.append(" (card service data byte)\n")
@@ -457,11 +461,11 @@ def compact_tlv(historical_bytes):
             else:
                 text.append("      Card service data byte: %d\n" % cs)
                 text.append(card_service(cs))
-            
+
     elif tag == 4:
         text.append(" (initial access data)\n")
         text.append("      Initial access data: " + toHexString(historical_bytes[:len]) + "\n")
-        
+
     elif tag == 5:
         text.append(" (card issuer's data)\n")
         text.append("      Card issuer data: " + toHexString(historical_bytes[:len]) + "\n")
@@ -515,7 +519,7 @@ def compact_tlv(historical_bytes):
             sw2 = historical_bytes[2]
             text.append("      LCS (life card cycle): %d\n" % lcs)
             text.append("      SW: %02X %02X" % (sw1, sw2))
-    
+
     elif tag == 15:
         text.append(" (application identifier)\n")
         text.append("      Application identifier: " + toHexString(historical_bytes[:len]))
@@ -537,7 +541,7 @@ def analyse_histrorical_bytes(historical_bytes):
         return ""
 
     hb_category = historical_bytes.pop(0)
-    
+
     text.append("  Category indicator byte: 0x%02X" % hb_category)
 
     if hb_category == 0x00:
@@ -557,7 +561,7 @@ def analyse_histrorical_bytes(historical_bytes):
         (lcs, sw1, sw2) = status[:3]
         text.append("    Mandatory status indicator (3 last bytes)\n")
         text.append("      LCS (life card cycle): %d (%s)" % (lcs, life_cycle_status(lcs)))
-        text.append( "      SW: %02X%02X (%s)" % (sw1, sw2, "")) #Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
+        text.append("      SW: %02X%02X (%s)" % (sw1, sw2, "")) #Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
 
     elif hb_category == 0x80:
         text.append(" (compact TLV data object)\n")
@@ -579,11 +583,11 @@ def analyse_histrorical_bytes(historical_bytes):
 
 def compute_tck(atr):
     # do not include TS byte
-    s = atr["atr"][0];
+    s = atr["atr"][0]
     for e in atr["atr"]:
         s ^= e
     # remove TCK
-    s ^= atr["atr"][-1];
+    s ^= atr["atr"][-1]
     return s
 
 def colorize_txt(l):
@@ -607,9 +611,9 @@ html_escape_table = {
 
 def html_escape(text):
     """Produce entities within text."""
-    L=[]
+    L = []
     for c in text:
-        L.append(html_escape_table.get(c,c))
+        L.append(html_escape_table.get(c, c))
     return "".join(L)
 
 def colorize_html(l):
@@ -630,13 +634,13 @@ def atr_display(atr, colorize):
 
     Y1 = atr["T0"] >> 4
     K = atr["T0"] & 0xF
-    text.append(["T0 = 0x%02X" % atr["T0"], "Y(1): b%s, K: %d (historical bytes)" % (int2bin(Y1, padding = 4), K)])
+    text.append(["T0 = 0x%02X" % atr["T0"], "Y(1): b%s, K: %d (historical bytes)" % (int2bin(Y1, padding=4), K)])
 
     for i in (1, 2, 3, 4):
         separator = False
         for p in ("A", "B", "C", "D"):
             key = "T%s%d" % (p, i)
-            if (atr.has_key(key)):
+            if key in atr:
                 v = atr[key]
                 t = [" T%s(%d) = 0x%02X" % (p, i, v)]
                 t.append(eval("%s(%d)" % (key, v)))
@@ -645,7 +649,7 @@ def atr_display(atr, colorize):
         if separator:
             text.append(["----"])
 
-    if (atr.has_key("hb")):
+    if "hb" in atr:
         t = ["Historical bytes"]
         t.append(toHexString(atr["hb"]))
         text.append(t)
@@ -654,7 +658,7 @@ def atr_display(atr, colorize):
         if t:
             text.append(t)
 
-    if (atr.has_key("TCK")):
+    if "TCK" in atr:
         t = ["TCK = 0x%02X " % atr["TCK"]]
         tck = compute_tck(atr)
         if tck == atr["TCK"]:
@@ -679,7 +683,7 @@ def match_atr(atr):
             # found the ATR
             for desc in file:
                 if desc == "\n":
-                    break;
+                    break
                 # get all the possible card descriptions
                 card.append(desc.strip())
     file.close()
