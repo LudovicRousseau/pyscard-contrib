@@ -669,11 +669,11 @@ def atr_display(atr, colorize):
 
     return "\n".join([colorize(t) for t in text])
 
-def match_atr(atr):
+def match_atr(atr, atr_file = "smartcard_list.txt"):
     """ try to find card description for a given ATR """
     card = []
     atr = toHexString(normalize(atr))
-    file = open("smartcard_list.txt")
+    file = open(atr_file)
     for line in file:
         if line.startswith("#"):
             continue
