@@ -479,7 +479,7 @@ def compact_tlv(historical_bytes):
         if len == 1:
             try:
                 sm = historical_bytes[0]
-            except:
+            except IndexError:
                 text.append("Error in the ATR: expecting 1 byte and got 0\n")
             else:
                 text.append("      Selection methods: %d\n" % sm)
