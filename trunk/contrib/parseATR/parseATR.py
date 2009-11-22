@@ -669,7 +669,7 @@ def atr_display(atr, colorize):
 
     return "\n".join([colorize(t) for t in text])
 
-def match_atr(atr, atr_file = "smartcard_list.txt"):
+def match_atr(atr, atr_file="smartcard_list.txt"):
     """ try to find card description for a given ATR """
     card = []
     atr = toHexString(normalize(atr))
