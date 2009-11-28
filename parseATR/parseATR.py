@@ -137,8 +137,15 @@ def TA1(v):
     FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU", "RFU")
     F = v >> 4
     D = v & 0xF
-    value = Fi[F] / Di[D]
-    return "Fi=%s, Di=%s, %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)" % (Fi[F], Di[D], value, 4000000 / value, FMax[F] * 1000000 / value, FMax[F])
+
+    text = "Fi=%s, Di=%s" % (Fi[F], Di[D])
+    if "RFU" in [Fi[F], Di[D]]:
+        text += ", INVALID VALUE"
+    else:
+        value = Fi[F] / Di[D]
+        text += ", %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)" % (value, 4000000 / value, FMax[F] * 1000000 / value, FMax[F])
+
+    return text
 
 def TA2(v):
     F = v >> 4
