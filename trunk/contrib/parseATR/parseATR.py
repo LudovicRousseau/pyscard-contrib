@@ -26,7 +26,7 @@ import exceptions
 
 
 class ParseAtrException(exceptions.Exception):
-    """Base class for exceptions in this module."""
+    """ Base class for exceptions in this module """
 
     def __init__(self, text):
         self.text = text
