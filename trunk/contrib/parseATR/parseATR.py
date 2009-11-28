@@ -630,7 +630,7 @@ def atr_display_html(atr):
 def atr_display(atr, colorize):
     text = []
     TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
-    text.append(["TS = 0x%02X" % atr["TS"], TS[atr["TS"]]])
+    text.append(["TS = 0x%02X" % atr["TS"], TS.get(atr["TS"], "Invalid")])
 
     Y1 = atr["T0"] >> 4
     K = atr["T0"] & 0xF
