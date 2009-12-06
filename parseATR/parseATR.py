@@ -274,6 +274,8 @@ def TDn(i, v):
 def life_cycle_status(lcs):
     # Table 13 - Life cycle status byte
     # ISO 7816-4:2004, page 21
+    text = "Unknown"
+
     if lcs > 15:
         text = "Proprietary"
 
