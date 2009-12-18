@@ -712,6 +712,6 @@ if __name__ == "__main__":
 
     card = match_atr(ATR)
     if card:
-        print "Possibly identified card:", " ".join(card)
+        print "Possibly identified card:", "\n\t".join(card)
     else:
         print "Unknown card"
