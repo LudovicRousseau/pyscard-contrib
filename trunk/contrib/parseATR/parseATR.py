@@ -569,7 +569,7 @@ def analyse_histrorical_bytes(historical_bytes):
 
         (lcs, sw1, sw2) = status[:3]
         text.append("    Mandatory status indicator (3 last bytes)\n")
-        text.append("      LCS (life card cycle): %d (%s)" % (lcs, life_cycle_status(lcs)))
+        text.append("      LCS (life card cycle): %d (%s)\n" % (lcs, life_cycle_status(lcs)))
         text.append("      SW: %02X%02X (%s)" % (sw1, sw2, "")) #Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
 
     elif hb_category == 0x80:
