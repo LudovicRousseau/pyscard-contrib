@@ -222,6 +222,8 @@ def TBn(i, v):
         CWI = v % 16
 
         text = "Block Waiting Integer: %d - Character Waiting Integer: %d" % (BWI, CWI)
+    else:
+        text = "BWI defined only for T=1. Invalid ATR?"
     return text
 
 def TC1(v):
