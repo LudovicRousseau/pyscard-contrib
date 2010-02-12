@@ -39,6 +39,7 @@ def toHexString(bytes=[]):
     """ return a hex list """
     return " ".join(["%02X" % b for b in bytes])
 
+
 def normalize(atr):
     """ transform an ATR in list of integers
     valid input formats are
@@ -58,6 +59,7 @@ def normalize(atr):
     atr = map(lambda x: int(x, 16), res)
     return atr
 
+
 def int2bin(i, padding=8):
     """ convert an integer into its binary representation """
     b = ""
@@ -66,6 +68,7 @@ def int2bin(i, padding=8):
         i >>= 1
     b = "0" * (padding - len(b)) + b
     return b
+
 
 def parseATR(atr_txt):
     atr_txt = normalize(atr_txt)
@@ -131,6 +134,7 @@ def parseATR(atr_txt):
 
     return atr
 
+
 def TA1(v):
     Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024, 1536, 2048, "RFU", "RFU")
     Di = ("RFU", 1, 2, 4, 8, 16, 32, "RFU", 12, 20, "RFU", "RFU", "RFU", "RFU", "RFU", "RFU")
@@ -146,6 +150,7 @@ def TA1(v):
         text += ", %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)" % (value, 4000000 / value, FMax[F] * 1000000 / value, FMax[F])
 
     return text
+
 
 def TA2(v):
     F = v >> 4
@@ -163,11 +168,14 @@ def TA2(v):
 
     return ''.join(text)
 
+
 def TA3(v):
     return TAn(3, v)
 
+
 def TA4(v):
     return TAn(4, v)
+
 
 def TAn(i, v):
     XI = ("not supported", "state L", "state H", "no preference")
@@ -192,6 +200,7 @@ def TAn(i, v):
         text = "Clock stop: %s - Class accepted by the card: %s" % (XI[F], ''.join(Class))
     return text
 
+
 def TB1(v):
     I = v >> 5
     PI = v & 0x1F
@@ -201,6 +210,7 @@ def TB1(v):
         text = "Programming Param P: %d Volts, I: %d milliamperes" % (PI, I)
     return text
 
+
 def TB2(v):
     text = ["Programming param PI2 (PI1 should be ignored): %d" % v, ]
     if ((v > 49) or (v < 251)):
@@ -209,11 +219,14 @@ def TB2(v):
         text.append(" is RFU")
     return ''.join(text)
 
+
 def TB3(v):
     return TBn(3, v)
 
+
 def TB4(v):
     return TBn(4, v)
+
 
 def TBn(i, v):
     text = "Undocumented"
@@ -236,20 +249,25 @@ def TBn(i, v):
             text = texts.get(v, "RFU")
     return text
 
+
 def TC1(v):
     text = ["Extra guard time: %d" % v]
     if (v == 255):
         text.append(" (special value)")
     return ''.join(text)
 
+
 def TC2(v):
     return "Work waiting time: 960 x %d x (Fi/F)" % v
+
 
 def TC3(v):
     return TCn(3, v)
 
+
 def TC4(v):
     return TCn(4, v)
+
 
 def TCn(i, v):
     text = []
@@ -264,17 +282,22 @@ def TCn(i, v):
                 text.append("RFU")
     return ''.join(text)
 
+
 def TD1(v):
     return TDn(1, v)
+
 
 def TD2(v):
     return TDn(2, v)
 
+
 def TD3(v):
     return TDn(3, v)
 
+
 def TD4(v):
     return TDn(4, v)
+
 
 def TDn(i, v):
     global T
@@ -282,6 +305,7 @@ def TDn(i, v):
     T = v & 0xF
     text = "Y(i+1) = b%s, Protocol T=%d" % (int2bin(Y, 4), T)
     return text
+
 
 def life_cycle_status(lcs):
     # Table 13 - Life cycle status byte
@@ -306,6 +330,7 @@ def life_cycle_status(lcs):
 
     return text
 
+
 def data_coding(dc):
     # Table 87 - Second software function table (data coding byte)
     # ISO 7816-4:2004, page 60
@@ -328,6 +353,7 @@ def data_coding(dc):
     text.append("        - Data unit in quartets: %d" % (dc & 15))
 
     return ''.join(text)
+
 
 def selection_methods(sm):
     # Table 86 - First software function table (selection methods)
@@ -360,6 +386,7 @@ def selection_methods(sm):
 
     return ''.join(text)
 
+
 def selection_mode(sm):
     # Table 87 - Second software function table (data coding byte)
     # ISO 7816-4:2004, page 60
@@ -391,6 +418,7 @@ def selection_mode(sm):
 
     return ''.join(text)
 
+
 def command_chaining(cc):
     # Table 88 - Third software function table (command chaining, length fields and logical channels)
     # ISO 7816-4:2004, page 61
@@ -412,6 +440,7 @@ def command_chaining(cc):
     text.append("        - Maximum number of logical channels: %d\n" % (cc & 7))
 
     return ''.join(text)
+
 
 def card_service(cs):
     # Table 85 - Card service data byte
@@ -447,6 +476,7 @@ def card_service(cs):
         text.append("        - Card with MF\n")
 
     return ''.join(text)
+
 
 def compact_tlv(historical_bytes):
     text = ""
@@ -554,6 +584,7 @@ def compact_tlv(historical_bytes):
 
     return ''.join(text)
 
+
 def analyse_histrorical_bytes(historical_bytes):
     text = []
 
@@ -602,6 +633,7 @@ def analyse_histrorical_bytes(historical_bytes):
 
     return text
 
+
 def compute_tck(atr):
     # do not include TS byte
     s = atr["atr"][0]
@@ -611,6 +643,7 @@ def compute_tck(atr):
     s ^= atr["atr"][-1]
     return s
 
+
 def colorize_txt(l):
     magenta = "\033[35m"
     normal = "\033[0m"
@@ -618,6 +651,7 @@ def colorize_txt(l):
     if len(l) > 1:
         text += " --> " + magenta + "".join(l[1:]) + normal
     return text
+
 
 def atr_display_txt(atr):
     return atr_display(atr, colorize_txt)
@@ -630,12 +664,14 @@ html_escape_table = {
     "<": "&lt;",
     }
 
+
 def html_escape(text):
     """Produce entities within text."""
     L = []
     for c in text:
         L.append(html_escape_table.get(c, c))
     return "".join(L)
+
 
 def colorize_html(l):
     text = '<span class="left">' + html_escape(l[0]) + '</span>'
@@ -645,8 +681,10 @@ def colorize_html(l):
         text = l[0]
     return text
 
+
 def atr_display_html(atr):
     return atr_display(atr, colorize_html)
+
 
 def atr_display(atr, colorize):
     text = []
@@ -689,6 +727,7 @@ def atr_display(atr, colorize):
         text.append(t)
 
     return "\n".join([colorize(t) for t in text])
+
 
 def match_atr(atr, atr_file="smartcard_list.txt"):
     """ try to find card description for a given ATR """
