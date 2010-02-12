@@ -216,14 +216,24 @@ def TB4(v):
     return TBn(4, v)
 
 def TBn(i, v):
-    text = ""
+    text = "Undocumented"
     if (T == 1):
         BWI = v >> 4
         CWI = v % 16
 
         text = "Block Waiting Integer: %d - Character Waiting Integer: %d" % (BWI, CWI)
     else:
-        text = "BWI defined only for T=1. Invalid ATR?"
+        if (i > 2 and T == 15):
+            # see ETSI TS 102 221 V8.3.0 (2009-08)
+            # Smart Cards; UICC-Terminal interface;
+            # Physical and logical characteristics (Release 8)
+            texts = {0x00: "No additional global interface parameters supported",
+                    0x88: "Secure Channel supported as defined in TS 102 484",
+                    0x8C: "Secured APDU - Platform to Platform required as defined in TS 102 484",
+                    0x90: "Low Impedance drivers and protocol available on the I/O line available (see clause 7.2.1)",
+                    0xA0: "UICC-CLF interface supported as defined in TS 102 613",
+                    0xC0: "Inter-Chip USB UICC-Terminal interface supported as defined in TS 102 600"}
+            text = texts.get(v, "RFU")
     return text
 
 def TC1(v):
