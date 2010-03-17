@@ -36,7 +36,7 @@ class ParseAtrException(exceptions.Exception):
         return self.text
 
 
-def toHexString(bytes=[]):
+def toHexString(bytes):
     """ return a hex list """
     return " ".join(["%02X" % b for b in bytes])
 
