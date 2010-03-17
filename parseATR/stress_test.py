@@ -46,5 +46,10 @@ if __name__ == "__main__":
             print e
         else:
             print txt
+            card = parseATR.match_atr(atr)
+            if card:
+                print "Possibly identified card:", "\n\t".join(card)
+            else:
+                print "Unknown card"
 
         print
