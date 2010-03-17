@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """
     stress_test.py
-    Copyright (C) 2009   Ludovic Rousseau
+    Copyright (C) 2009-2010   Ludovic Rousseau
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,14 +29,12 @@ if __name__ == "__main__":
         List = sys.argv[1]
 
     for atr in open(List):
-        if atr[0] != "3":
+        if not atr.startswith("3"):
             continue
         if "[" in atr:
             continue
-        if "." in atr:
-            continue
-        if "?" in atr:
-            continue
+
+        atr = atr.replace('.', '0')
 
         # remove traling newline
         atr = atr.rstrip()
