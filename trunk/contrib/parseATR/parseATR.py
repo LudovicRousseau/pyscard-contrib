@@ -23,6 +23,7 @@ ATR_MAX_PROTOCOLS = 7
 T = -1
 
 import exceptions
+import re
 
 
 class ParseAtrException(exceptions.Exception):
@@ -735,12 +736,16 @@ def match_atr(atr, atr_file="smartcard_list.txt"):
     atr = toHexString(normalize(atr))
     file = open(atr_file)
     for line in file:
-        if line.startswith("#"):
+        if line.startswith("#") or line.startswith("\t") or line == "\n":
             continue
         line = line.rstrip("\n")
 
-        if line == atr:
+        pattern = re.compile(line)
+        if pattern.match(atr):
             # found the ATR
+            if atr != line:
+                card.append("")
+                card.append(line)
             for desc in file:
                 if desc == "\n":
                     break
