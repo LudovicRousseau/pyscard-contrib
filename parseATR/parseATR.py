@@ -351,7 +351,7 @@ def data_coding(dc):
         text.append("in")
     text.append("valid\n")
 
-    text.append("        - Data unit in quartets: %d" % (dc & 15))
+    text.append("        - Data unit in quartets: %d\n" % (dc & 15))
 
     return ''.join(text)
 
