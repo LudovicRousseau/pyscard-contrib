@@ -19,7 +19,6 @@
 """
 
 import sys
-import string
 import parseATR
 
 List = "/usr/local/share/pcsc/smartcard_list.txt"
