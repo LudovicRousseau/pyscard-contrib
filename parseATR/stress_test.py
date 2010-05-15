@@ -32,6 +32,7 @@ def stress(atr_list):
             continue
 
         atr = atr.replace('.', '0')
+        atr = atr.replace('*', '0')
 
         # remove traling newline
         atr = atr.rstrip()
