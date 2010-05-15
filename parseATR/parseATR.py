@@ -735,13 +735,23 @@ def match_atr(atr, atr_file="smartcard_list.txt"):
     card = []
     atr = toHexString(normalize(atr))
     file = open(atr_file)
+
+    # find a . * or [ in the ATR to know if we must use a RE or not
+    re_match = re.compile("[\\.\\*\\[]")
+
     for line in file:
         if line.startswith("#") or line.startswith("\t") or line == "\n":
             continue
         line = line.rstrip("\n")
 
-        pattern = re.compile(line)
-        if pattern.match(atr):
+        # does the ATR in the file uses a RE?
+        if re_match.search(line):
+            # use the RE engine (slow)
+            found = re.match(line, atr)
+        else:
+            # use string compare (fast)
+            found = line == atr
+        if found:
             # found the ATR
             if atr != line:
                 card.append("")
