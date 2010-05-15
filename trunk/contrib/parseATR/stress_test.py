@@ -24,11 +24,9 @@ import parseATR
 
 List = "/usr/local/share/pcsc/smartcard_list.txt"
 
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        List = sys.argv[1]
 
-    for atr in open(List):
+def stress(atr_list):
+    for atr in open(atr_list):
         if not atr.startswith("3"):
             continue
         if "[" in atr:
@@ -53,3 +51,9 @@ if __name__ == "__main__":
                 print "Unknown card"
 
         print
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        List = sys.argv[1]
+
+    stress(List)
