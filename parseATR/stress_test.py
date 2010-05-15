@@ -22,6 +22,7 @@ import sys
 import parseATR
 
 List = "/usr/local/share/pcsc/smartcard_list.txt"
+Match = 0
 
 
 def stress(atr_list):
@@ -44,11 +45,12 @@ def stress(atr_list):
             print e
         else:
             print txt
-            card = parseATR.match_atr(atr)
-            if card:
-                print "Possibly identified card:", "\n\t".join(card)
-            else:
-                print "Unknown card"
+            if Match:
+                card = parseATR.match_atr(atr)
+                if card:
+                    print "Possibly identified card:", "\n\t".join(card)
+                else:
+                    print "Unknown card"
 
         print
 
