@@ -100,12 +100,12 @@ def parseATR(atr_txt):
             pointer += 1
             atr["TB%d" % pn] = atr_txt[pointer]
 
-       # Check TCi is present
+        # Check TCi is present
         if ((TDi | 0xBF) == 0xFF):
             pointer += 1
             atr["TC%d" % pn] = atr_txt[pointer]
 
-       # Check TDi is present
+        # Check TDi is present
         if ((TDi | 0x7F) == 0xFF):
             pointer += 1
             atr["TD%d" % pn] = TDi = atr_txt[pointer]
