@@ -18,6 +18,8 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+# $Id$
+
 ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
 T = -1
