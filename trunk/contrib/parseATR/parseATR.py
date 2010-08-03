@@ -299,6 +299,9 @@ def TD3(v):
 def TD4(v):
     return TDn(4, v)
 
+def TD5(v):
+    return TDn(5, v)
+
 
 def TDn(i, v):
     global T
@@ -696,7 +699,7 @@ def atr_display(atr, colorize):
     K = atr["T0"] & 0xF
     text.append(["T0 = 0x%02X" % atr["T0"], "Y(1): b%s, K: %d (historical bytes)" % (int2bin(Y1, padding=4), K)])
 
-    for i in (1, 2, 3, 4):
+    for i in (1, 2, 3, 4, 5):
         separator = False
         for p in ("A", "B", "C", "D"):
             key = "T%s%d" % (p, i)
