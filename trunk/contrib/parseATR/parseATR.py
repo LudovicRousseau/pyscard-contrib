@@ -123,6 +123,10 @@ def parseATR(atr_txt):
     # Store historical bytes
     atr["hb"] = atr_txt[pointer + 1: pointer + 1 + hb_length]
 
+    last = pointer + 1 + hb_length
+    if len(atr_txt) > last:
+        atr["extra"] = atr_txt[last:]
+
     if len(atr["hb"]) < hb_length:
         missing = hb_length - len(atr["hb"])
         if missing > 1:
@@ -300,6 +304,7 @@ def TD3(v):
 
 def TD4(v):
     return TDn(4, v)
+
 
 def TD5(v):
     return TDn(5, v)
@@ -731,6 +736,9 @@ def atr_display(atr, colorize):
         else:
             t.append("WRONG CHECKSUM, expected 0x%02X" % tck)
         text.append(t)
+
+    if "extra" in atr:
+        text.append(["Extra bytes", toHexString(atr["extra"])])
 
     return "\n".join([colorize(t) for t in text])
 
