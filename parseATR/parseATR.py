@@ -123,7 +123,12 @@ def parseATR(atr_txt):
     # Store historical bytes
     atr["hb"] = atr_txt[pointer + 1: pointer + 1 + hb_length]
 
+    # Store TCK
     last = pointer + 1 + hb_length
+    if "TCK" in atr:
+        atr["TCK"] = atr_txt[last]
+        last += 1
+
     if len(atr_txt) > last:
         atr["extra"] = atr_txt[last:]
 
@@ -134,10 +139,6 @@ def parseATR(atr_txt):
         else:
             (t1, t2) = ("", "is")
         raise ParseAtrException("ERROR! ATR is truncated: %d byte%s %s missing" % (missing, t1, t2))
-
-    # Store TCK
-    if "TCK" in atr:
-        atr["TCK"] = atr_txt[-1]
 
     return atr
 
