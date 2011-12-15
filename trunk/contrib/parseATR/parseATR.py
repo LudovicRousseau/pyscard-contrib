@@ -642,6 +642,13 @@ def analyse_histrorical_bytes(historical_bytes):
 
     else:
         text.append(" (proprietary format)")
+        ascii = " "
+        for b in historical_bytes:
+            if b > 31:
+                ascii += chr(b)
+            else:
+                ascii += '.'
+        text.append(''.join(ascii))
 
     return text
 
