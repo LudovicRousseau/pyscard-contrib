@@ -538,15 +538,21 @@ def compact_tlv(historical_bytes):
 
     elif tag == 4:
         text.append(" (initial access data)\n")
-        text.append("      Initial access data: " + toHexString(historical_bytes[:len]) + "\n")
+        text.append("      Initial access data: " +
+            toHexString(historical_bytes[:len]) + " \"" +
+            toASCIIString(historical_bytes[:len]) + "\"\n")
 
     elif tag == 5:
         text.append(" (card issuer's data)\n")
-        text.append("      Card issuer data: " + toHexString(historical_bytes[:len]) + "\n")
+        text.append("      Card issuer data: " +
+            toHexString(historical_bytes[:len]) + " \"" +
+            toASCIIString(historical_bytes[:len]) + "\"\n")
 
     elif tag == 6:
         text.append(" (pre-issuing data)\n")
-        text.append("      Data: " + toHexString(historical_bytes[:len]) + "\n")
+        text.append("      Data: " +
+            toHexString(historical_bytes[:len]) + " \"" +
+            toASCIIString(historical_bytes[:len]) + "\"\n")
 
     elif tag == 7:
         text.append(" (card capabilities)\n")
@@ -596,11 +602,15 @@ def compact_tlv(historical_bytes):
 
     elif tag == 15:
         text.append(" (application identifier)\n")
-        text.append("      Application identifier: " + toHexString(historical_bytes[:len]))
+        text.append("      Application identifier: " +
+            toHexString(historical_bytes[:len]) + " \"" +
+            toASCIIString(historical_bytes[:len]) + "\"\n")
 
     else:
         text.append(" (unknown)\n")
-        text.append("      Value: " + toHexString(historical_bytes[:len]))
+        text.append("      Value: " +
+            toHexString(historical_bytes[:len]) + " \"" +
+            toASCIIString(historical_bytes[:len]) + "\"\n")
 
     # consume len bytes of historic
     del historical_bytes[0:len]
