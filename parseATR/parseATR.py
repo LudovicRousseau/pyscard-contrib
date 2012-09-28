@@ -517,11 +517,11 @@ def compact_tlv(historical_bytes):
 
     if tag == 1:
         text.append(" (country code, ISO 3166-1)\n")
-        text.append("      Country code: " + toHexString(historical_bytes[:len]))
+        text.append("      Country code: %s\n" % toHexString(historical_bytes[:len]))
 
     elif tag == 2:
         text.append(" (issuer identification number, ISO 7812-1)\n")
-        text.append("      Issuer identification number: " + toHexString(historical_bytes[:len]))
+        text.append("      Issuer identification number: %s\n" % toHexString(historical_bytes[:len]))
 
     elif tag == 3:
         text.append(" (card service data byte)\n")
