@@ -63,7 +63,7 @@ def normalize(atr):
     atr = atr.replace(":", "")
     atr = atr.replace(" ", "")
 
-    res = []
+    res = list()
     while len(atr) >= 2:
         byte, atr = atr[:2], atr[2:]
         res.append(byte)
@@ -289,7 +289,7 @@ def TC4(v):
 
 
 def TCn(i, v):
-    text = []
+    text = list()
     if (T == 1):
         text.append("Error detection code: ")
         if (v == 1):
@@ -357,7 +357,7 @@ def life_cycle_status(lcs):
 def data_coding(dc):
     # Table 87 - Second software function table (data coding byte)
     # ISO 7816-4:2004, page 60
-    text = []
+    text = list()
 
     if dc & 128:
         text.append("        - EF of TLV structure supported\n")
@@ -381,7 +381,7 @@ def data_coding(dc):
 def selection_methods(sm):
     # Table 86 - First software function table (selection methods)
     # ISO 7816-4:2004, page 60
-    text = []
+    text = list()
 
     if sm & 1:
         text.append("        - Record identifier supported\n")
@@ -413,7 +413,7 @@ def selection_methods(sm):
 def selection_mode(sm):
     # Table 87 - Second software function table (data coding byte)
     # ISO 7816-4:2004, page 60
-    text = []
+    text = list()
 
     if sm & 1:
         text.append("        - Record identifier supported\n")
@@ -445,7 +445,7 @@ def selection_mode(sm):
 def command_chaining(cc):
     # Table 88 - Third software function table (command chaining, length fields and logical channels)
     # ISO 7816-4:2004, page 61
-    text = []
+    text = list()
 
     if cc & 128:
         text.append("        - Command chaining\n")
@@ -468,7 +468,7 @@ def command_chaining(cc):
 def card_service(cs):
     # Table 85 - Card service data byte
     # ISO 7816-4:2004, page 59
-    text = []
+    text = list()
 
     if cs & 128:
         text.append("        - Application selection: by full DF name\n")
@@ -512,7 +512,7 @@ def compact_tlv(historical_bytes):
     tag = tlv / 16
     len = tlv % 16
 
-    text = []
+    text = list()
     text.append("    Tag: %d, Len: %d" % (tag, len))
 
     if tag == 1:
@@ -619,7 +619,7 @@ def compact_tlv(historical_bytes):
 
 
 def analyse_histrorical_bytes(historical_bytes):
-    text = []
+    text = list()
 
     # return if we have NO historical bytes
     if len(historical_bytes) == 0:
@@ -704,7 +704,7 @@ html_escape_table = {
 
 def html_escape(text):
     """Produce entities within text."""
-    L = []
+    L = list()
     for c in text:
         L.append(html_escape_table.get(c, c))
     return "".join(L)
@@ -724,7 +724,7 @@ def atr_display_html(atr):
 
 
 def atr_display(atr, colorize):
-    text = []
+    text = list()
     TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
     text.append(["TS = 0x%02X" % atr["TS"], TS.get(atr["TS"], "Invalid")])
 
@@ -771,7 +771,7 @@ def atr_display(atr, colorize):
 
 def match_atr(atr, atr_file="smartcard_list.txt"):
     """ try to find card description for a given ATR """
-    card = []
+    card = list()
     atr = toHexString(normalize(atr))
     file = open(atr_file)
 
