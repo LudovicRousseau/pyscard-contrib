@@ -433,7 +433,7 @@ def selection_mode(sm):
     if sm & 32:
         text.append("        - DF selection by path\n")
 
-    if  sm & 64:
+    if sm & 64:
         text.append("        - DF selection by partial DF name\n")
 
     if sm & 128:
