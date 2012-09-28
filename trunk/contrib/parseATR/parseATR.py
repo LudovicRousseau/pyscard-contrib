@@ -654,13 +654,9 @@ def analyse_histrorical_bytes(historical_bytes):
     else:
         text.append(" (proprietary format)")
         ascii = " equivalent ASCII string: \""
-        for b in historical_bytes:
-            if b > 31 and b < 127:
-                ascii += chr(b)
-            else:
-                ascii += '.'
+        ascii += toASCIIString(historical_bytes)
         ascii += '"'
-        text.append(''.join(ascii))
+        text.append(ascii)
 
     return text
 
