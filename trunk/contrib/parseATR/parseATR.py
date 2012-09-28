@@ -43,6 +43,17 @@ def toHexString(bytes):
     return " ".join(["%02X" % b for b in bytes])
 
 
+def toASCIIString(bytes):
+    """ return a string """
+    ascii = ""
+    for b in bytes:
+        if b > 31 and b < 127:
+            ascii += chr(b)
+        else:
+            ascii += '.'
+    return ascii
+
+
 def normalize(atr):
     """ transform an ATR in list of integers
     valid input formats are
