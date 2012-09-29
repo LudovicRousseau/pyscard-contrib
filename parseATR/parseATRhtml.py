@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """
     parseATRhtml: convert an ATR in a (HTML) human readable format
-    Copyright (C) 2009   Ludovic Rousseau
+    Copyright (C) 2009-2012   Ludovic Rousseau
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@ header = """<?xml version="1.0" encoding="UTF-8"?>
 <html>
 <head>
 <title>ATR Parsing</title>
+<style type="text/css">
+span.data{color: blue;}
+</style>
 </head>
 <body>
 <table border="1">"""
@@ -35,15 +38,6 @@ footer = """</table>
 </body>
 </html>"""
 
-
-def colorize(l):
-    text = '<tr><th align="right">' + html_escape(l[0]) + '</th>'
-    if len(l) > 1:
-        t = html_escape("".join(l[1:]))
-        if '\n' in t:
-            t = "<pre>" + t + "</pre>"
-        text += '<th align="left">' + t + '</th></tr>'
-    return text
 
 if __name__ == "__main__":
     import sys
@@ -54,7 +48,7 @@ if __name__ == "__main__":
         ATR = "3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42 30 36 4E"
     atr = parseATR(ATR)
     #print "ATR:", ATR
-    html = atr_display(atr, colorize)
+    html = atr_display_html(atr)
 
     print header
     print "<p>ATR: " + ATR + "<p>"
