@@ -140,7 +140,7 @@ def parseATR(atr_txt):
         try:
             atr["TCK"] = atr_txt[last]
         except IndexError:
-            atr["TCK"] = -1;
+            atr["TCK"] = -1
         last += 1
 
     if len(atr_txt) > last:
