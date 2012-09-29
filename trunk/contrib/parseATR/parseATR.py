@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """
     parseATR: convert an ATR in a human readable format
-    Copyright (C) 2009-2010   Ludovic Rousseau
+    Copyright (C) 2009-2012   Ludovic Rousseau
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ T = -1
 
 import exceptions
 import re
+import types
 
 
 class ParseAtrException(exceptions.Exception):
@@ -164,14 +165,16 @@ def TA1(v):
     F = v >> 4
     D = v & 0xF
 
-    text = "Fi=%s, Di=%s" % (Fi[F], Di[D])
+    text = "Fi=%s, Di=%s"
+    args = (Fi[F], Di[D])
     if "RFU" in [Fi[F], Di[D]]:
         text += ", INVALID VALUE"
     else:
         value = Fi[F] / Di[D]
-        text += ", %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)" % (value, 4000000 / value, FMax[F] * 1000000 / value, FMax[F])
+        text += ", %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)"
+        args += (value, 4000000 / value, FMax[F] * 1000000 / value, FMax[F])
 
-    return text
+    return [text, args]
 
 
 def TA2(v):
@@ -202,7 +205,8 @@ def TA4(v):
 def TAn(i, v):
     XI = ("not supported", "state L", "state H", "no preference")
     if (T == 1):
-        text = "IFSC: %s" % v
+        text = "IFSC: %s"
+        args = (v)
     else:
         F = v >> 6
         D = v % 64
@@ -219,8 +223,9 @@ def TAn(i, v):
         if (D & 0x10):
             Class.append("E RFU")
 
-        text = "Clock stop: %s - Class accepted by the card: %s" % (XI[F], ''.join(Class))
-    return text
+        text = "Clock stop: %s - Class accepted by the card: %s"
+        args = (XI[F], ''.join(Class))
+    return [text, args]
 
 
 def TB1(v):
@@ -252,11 +257,13 @@ def TB4(v):
 
 def TBn(i, v):
     text = "Undocumented"
+    args = list()
     if (T == 1):
         BWI = v >> 4
         CWI = v % 16
 
-        text = "Block Waiting Integer: %d - Character Waiting Integer: %d" % (BWI, CWI)
+        text = "Block Waiting Integer: %d - Character Waiting Integer: %d"
+        args = (BWI, CWI)
     else:
         if (i > 2 and T == 15):
             # see ETSI TS 102 221 V8.3.0 (2009-08)
@@ -269,14 +276,15 @@ def TBn(i, v):
                     0xA0: "UICC-CLF interface supported as defined in TS 102 613",
                     0xC0: "Inter-Chip USB UICC-Terminal interface supported as defined in TS 102 600"}
             text = texts.get(v, "RFU")
-    return text
+    return [text, args]
 
 
 def TC1(v):
-    text = ["Extra guard time: %d" % v]
+    text = "Extra guard time: %d"
+    args = v
     if (v == 255):
-        text.append(" (special value)")
-    return ''.join(text)
+        text += " (special value)"
+    return [text, args]
 
 
 def TC2(v):
@@ -293,16 +301,17 @@ def TC4(v):
 
 def TCn(i, v):
     text = list()
+    args = list()
     if (T == 1):
-        text.append("Error detection code: ")
+        text.append("Error detection code: %s")
         if (v == 1):
-            text.append("CRC")
+            args = "CRC"
         else:
             if (v == 0):
-                text.append("LRC")
+                args = "LRC"
             else:
-                text.append("RFU")
-    return ''.join(text)
+                args = "RFU"
+    return [''.join(text), args]
 
 
 def TD1(v):
@@ -329,8 +338,10 @@ def TDn(i, v):
     global T
     Y = v >> 4
     T = v & 0xF
-    text = "Y(i+1) = b%s, Protocol T=%d" % (int2bin(Y, 4), T)
-    return text
+    text = "Y(i+1) = b%s, Protocol T=%d"
+    args = (int2bin(Y, 4), T)
+
+    return [text, args]
 
 
 def life_cycle_status(lcs):
@@ -516,18 +527,22 @@ def compact_tlv(historical_bytes):
     len = tlv % 16
 
     text = list()
-    text.append("    Tag: %d, Len: %d" % (tag, len))
+    args = list()
+
+    text.append("    Tag: %d, Len: %d (%%s)\n" % (tag, len))
 
     if tag == 1:
-        text.append(" (country code, ISO 3166-1)\n")
-        text.append("      Country code: %s\n" % toHexString(historical_bytes[:len]))
+        args.append("country code, ISO 3166-1")
+        text.append("      Country code: %s\n")
+        args.append(toHexString(historical_bytes[:len]))
 
     elif tag == 2:
-        text.append(" (issuer identification number, ISO 7812-1)\n")
-        text.append("      Issuer identification number: %s\n" % toHexString(historical_bytes[:len]))
+        args.append("issuer identification number, ISO 7812-1")
+        text.append("      Issuer identification number: %s\n")
+        args.append(toHexString(historical_bytes[:len]))
 
     elif tag == 3:
-        text.append(" (card service data byte)\n")
+        args.append("card service data byte")
         try:
             cs = historical_bytes[0]
         except IndexError:
@@ -536,93 +551,104 @@ def compact_tlv(historical_bytes):
             if cs is None:
                 text.append("      Error in the ATR: expecting 1 byte and got 0")
             else:
-                text.append("      Card service data byte: %d\n" % cs)
-                text.append(card_service(cs))
+                text.append("      Card service data byte: %d\n%s")
+                args += (cs, card_service(cs))
 
     elif tag == 4:
-        text.append(" (initial access data)\n")
-        text.append("      Initial access data: " +
-            toHexString(historical_bytes[:len]) + " \"" +
-            toASCIIString(historical_bytes[:len]) + "\"\n")
+        args.append("initial access data")
+        text.append("      Initial access data: %s \"%s\"\n")
+        args.append(toHexString(historical_bytes[:len]))
+        args.append(toASCIIString(historical_bytes[:len]))
 
     elif tag == 5:
-        text.append(" (card issuer's data)\n")
-        text.append("      Card issuer data: " +
-            toHexString(historical_bytes[:len]) + " \"" +
-            toASCIIString(historical_bytes[:len]) + "\"\n")
+        args.append("card issuer's data")
+        text.append("      Card issuer data: %s \"%s\"\n")
+        args.append(toHexString(historical_bytes[:len]))
+        args.append(toASCIIString(historical_bytes[:len]))
 
     elif tag == 6:
-        text.append(" (pre-issuing data)\n")
-        text.append("      Data: " +
-            toHexString(historical_bytes[:len]) + " \"" +
-            toASCIIString(historical_bytes[:len]) + "\"\n")
+        args.append("pre-issuing data")
+        text.append("      Data: %s \"%s\"\n")
+        args.append(toHexString(historical_bytes[:len]))
+        args.append(toASCIIString(historical_bytes[:len]))
 
     elif tag == 7:
-        text.append(" (card capabilities)\n")
+        args.append("card capabilities")
         if len == 1:
             try:
                 sm = historical_bytes[0]
             except IndexError:
                 text.append("Error in the ATR: expecting 1 byte and got 0\n")
             else:
-                text.append("      Selection methods: %d\n" % sm)
-                text.append(selection_mode(sm))
+                text.append("      Selection methods: %d\n%s")
+                args.append(sm)
+                args.append(selection_mode(sm))
         elif len == 2:
             sm = historical_bytes[0]
             dc = historical_bytes[1]
-            text.append("      Selection methods: %d\n" % sm)
-            text.append(selection_methods(sm))
-            text.append("      Data coding byte: %d\n" % dc)
-            text.append(data_coding(dc))
+            text.append("      Selection methods: %d\n%s")
+            args.append(sm)
+            args.append(selection_methods(sm))
+            text.append("      Data coding byte: %d\n%s")
+            args.append(dc)
+            args.append(data_coding(dc))
         elif len == 3:
             sm = historical_bytes[0]
             dc = historical_bytes[1]
             cc = historical_bytes[2]
-            text.append("      Selection methods: %d\n" % sm)
-            text.append(selection_mode(sm))
-            text.append("      Data coding byte: %d\n" % dc)
-            text.append(data_coding(dc))
-            text.append("      Command chaining, length fields and logical channels: %d\n" % cc)
-            text.append(command_chaining(cc))
+            text.append("      Selection methods: %d\n%s")
+            args.append(sm)
+            args.append(selection_mode(sm))
+            text.append("      Data coding byte: %d\n%s")
+            args.append(dc)
+            args.append(data_coding(dc))
+            text.append("      Command chaining, length fields and logical channels: %d\n%s")
+            args.append(cc)
+            args.append(command_chaining(cc))
         else:
             text.append("      wrong ATR")
 
     elif tag == 8:
-        text.append(" (status indicator)\n")
+        args.append("status indicator")
         if len == 1:
             lcs = historical_bytes[0]
-            text.append("      LCS (life card cycle): %d" % lcs)
+            text.append("      LCS (life card cycle): %d\n")
+            args.append(lcs)
         elif len == 2:
             sw1 = historical_bytes[0]
             sw2 = historical_bytes[1]
-            text.append("      SW: %02X %02X" % (sw1, sw2))
+            text.append("      SW: %s")
+            args.append("%02X %02X" % (sw1, sw2))
         elif len == 3:
             lcs = historical_bytes[0]
             sw1 = historical_bytes[1]
             sw2 = historical_bytes[2]
-            text.append("      LCS (life card cycle): %d\n" % lcs)
-            text.append("      SW: %02X %02X" % (sw1, sw2))
+            text.append("      LCS (life card cycle): %d\n")
+            args.append(lcs)
+            text.append("      SW: %s")
+            args.append("%02X %02X" % (sw1, sw2))
 
     elif tag == 15:
-        text.append(" (application identifier)\n")
-        text.append("      Application identifier: " +
-            toHexString(historical_bytes[:len]) + " \"" +
-            toASCIIString(historical_bytes[:len]) + "\"\n")
+        args.append("application identifier")
+        text.append("      Application identifier: %s \"%s\"\n")
+        args.append(toHexString(historical_bytes[:len]))
+        args.append(toASCIIString(historical_bytes[:len]))
 
     else:
-        text.append(" (unknown)\n")
-        text.append("      Value: " +
-            toHexString(historical_bytes[:len]) + " \"" +
-            toASCIIString(historical_bytes[:len]) + "\"\n")
+        args.append("unknown")
+        text.append("      Value: %s \"%s\"\n")
+        args.append(toHexString(historical_bytes[:len]))
+        args.append(toASCIIString(historical_bytes[:len]))
 
     # consume len bytes of historic
     del historical_bytes[0:len]
 
-    return ''.join(text)
+    return [''.join(text), tuple(args)]
 
 
 def analyse_histrorical_bytes(historical_bytes):
     text = list()
+    args = list()
 
     # return if we have NO historical bytes
     if len(historical_bytes) == 0:
@@ -630,7 +656,7 @@ def analyse_histrorical_bytes(historical_bytes):
 
     hb_category = historical_bytes.pop(0)
 
-    text.append("  Category indicator byte: 0x%02X" % hb_category)
+    left = "  Category indicator byte: 0x%02X" % hb_category
 
     if hb_category == 0x00:
         text.append(" (compact TLV data object)\n")
@@ -644,34 +670,39 @@ def analyse_histrorical_bytes(historical_bytes):
         del historical_bytes[-3:]
 
         while len(historical_bytes) > 0:
-            text.append(compact_tlv(historical_bytes))
+            [t, a] = compact_tlv(historical_bytes)
+            text.append(t)
+            args += a
 
         (lcs, sw1, sw2) = status[:3]
         text.append("    Mandatory status indicator (3 last bytes)\n")
-        text.append("      LCS (life card cycle): %d (%s)\n" % (lcs, life_cycle_status(lcs)))
-        text.append("      SW: %02X%02X (%s)" % (sw1, sw2, ""))  # Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
+        text.append("      LCS (life card cycle): %d (%s)\n")
+        args += (lcs, life_cycle_status(lcs))
+        text.append("      SW: %s (%s)")
+        args.append("%02X %02X" % (sw1, sw2))
+        args.append("")  # Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
 
     elif hb_category == 0x80:
         text.append(" (compact TLV data object)\n")
         while len(historical_bytes) > 0:
-            text.append(compact_tlv(historical_bytes))
+            [t, a] = compact_tlv(historical_bytes)
+            text.append(t)
+            args += a
 
     elif hb_category == 0x10:
-        text.append(" (next byte is the DIR data reference)")
+        text.append(" (next byte is the DIR data reference)\n")
         data_ref = historical_bytes.pop(0)
-        text.append("   DIR data reference: %d" % data_ref)
+        text.append("   DIR data reference: %d")
+        args.append(data_ref)
 
     elif hb_category in (0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F):
         text.append(" (Reserved for future use)")
 
     else:
-        text.append(" (proprietary format)")
-        ascii = " equivalent ASCII string: \""
-        ascii += toASCIIString(historical_bytes)
-        ascii += '"'
-        text.append(ascii)
+        text.append(" (proprietary format) \"%s\"")
+        args.append(toASCIIString(historical_bytes))
 
-    return text
+    return [left, ["".join(text), tuple(args)]]
 
 
 def compute_tck(atr):
@@ -684,12 +715,29 @@ def compute_tck(atr):
     return s
 
 
+def colorize_line(line, left, right):
+    # colorize data from the format: foo: data, ...
+    if isinstance(line, types.StringTypes):
+        return line
+
+    template = line[0].replace("%s", left + "%s" +
+        right).replace("%d", left + "%d" + right).replace("%g", left
+        + "%g" + right)
+    flattened = template % line[1]
+    return flattened
+
+
 def colorize_txt(l):
     magenta = "\033[35m"
     normal = "\033[0m"
+    blue = "\033[34m"
     text = l[0]
     if len(l) > 1:
-        text += " --> " + magenta + "".join(l[1:]) + normal
+        text += " --> " + magenta
+        for line in l[1:]:
+            colored_line = colorize_line(line, blue, magenta)
+            text += colored_line
+        text += normal
     return text
 
 
@@ -714,11 +762,19 @@ def html_escape(text):
 
 
 def colorize_html(l):
-    text = '<span class="left">' + html_escape(l[0]) + '</span>'
+    left = '<span class="data">'
+    right = '</span>'
+
+    text = '<tr><th align="right">' + html_escape(l[0]) + '</th>'
     if len(l) > 1:
-        text += '<span class="right">' + html_escape("".join(l[1:])) + '</span>'
-    else:
-        text = l[0]
+        t = ""
+        for line in l[1:]:
+            colored_line = colorize_line(line, left, right)
+            t += colored_line
+
+        if '\n' in t:
+            t = "<pre>" + t + "</pre>"
+        text += '<th align="left">' + t + '</th></tr>'
     return text
 
 
@@ -733,7 +789,7 @@ def atr_display(atr, colorize):
 
     Y1 = atr["T0"] >> 4
     K = atr["T0"] & 0xF
-    text.append(["T0 = 0x%02X" % atr["T0"], "Y(1): b%s, K: %d (historical bytes)" % (int2bin(Y1, padding=4), K)])
+    text.append(["T0 = 0x%02X" % atr["T0"], ["Y(1): b%s, K: %d (historical bytes)", (int2bin(Y1, padding=4), K)]])
 
     for i in (1, 2, 3, 4, 5):
         separator = False
@@ -761,7 +817,7 @@ def atr_display(atr, colorize):
         t = ["TCK = 0x%02X " % atr["TCK"]]
         tck = compute_tck(atr)
         if tck == atr["TCK"]:
-            t.append("(correct checksum)")
+            t.append("correct checksum")
         else:
             t.append("WRONG CHECKSUM, expected 0x%02X" % tck)
         text.append(t)
