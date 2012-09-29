@@ -137,7 +137,10 @@ def parseATR(atr_txt):
     # Store TCK
     last = pointer + 1 + hb_length
     if "TCK" in atr:
-        atr["TCK"] = atr_txt[last]
+        try:
+            atr["TCK"] = atr_txt[last]
+        except IndexError:
+            atr["TCK"] = -1;
         last += 1
 
     if len(atr_txt) > last:
