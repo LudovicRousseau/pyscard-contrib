@@ -774,7 +774,7 @@ def colorize_html(l):
 
         if '\n' in t:
             t = "<pre>" + t + "</pre>"
-        text += '<th align="left">' + t + '</th></tr>'
+        text += '<th align="left"><span class="format">' + t + '</span></th></tr>'
     return text
 
 
