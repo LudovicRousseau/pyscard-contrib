@@ -28,7 +28,8 @@ header = """<?xml version="1.0" encoding="UTF-8"?>
 <head>
 <title>ATR Parsing</title>
 <style type="text/css">
-span.data{color: blue;}
+span.data{color: Dodgerblue;}
+span.format{color: Darkmagenta;}
 </style>
 </head>
 <body>
