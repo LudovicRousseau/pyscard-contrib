@@ -828,11 +828,34 @@ def atr_display(atr, colorize):
     return "\n".join([colorize(t) for t in text])
 
 
-def match_atr(atr, atr_file="smartcard_list.txt"):
+def match_atr(atr, atr_file=None):
     """ try to find card description for a given ATR """
     card = list()
     atr = toHexString(normalize(atr))
-    file = open(atr_file)
+
+    if atr_file is None:
+        import os
+        db_list = list()
+
+        try:
+            cache = os.environ['XDG_CACHE_HOME']
+        except KeyError:
+            cache = os.environ['HOME'] + "/.cache"
+        db_list.append(cache + "/smartcard_list.txt")
+
+        db_list += [os.environ['HOME'] + "/.smartcard_list.txt",
+            "/usr/local/pcsc/smartcard_list.txt",
+            "/usr/share/pcsc/smartcard_list.txt",
+            "/usr/local/share/pcsc/smartcard_list.txt"]
+        for atr_file in db_list:
+            try:
+                file = open(atr_file)
+                print "Using:", atr_file
+                break
+            except:
+                pass
+    else:
+        file = open(atr_file)
 
     # find a . * or [ in the ATR to know if we must use a RE or not
     re_match = re.compile("[\\.\\*\\[]")
