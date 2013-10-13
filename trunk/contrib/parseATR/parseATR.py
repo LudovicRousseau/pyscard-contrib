@@ -278,11 +278,11 @@ def TBn(i, v):
             # Smart Cards; UICC-Terminal interface;
             # Physical and logical characteristics (Release 8)
             texts = {0x00: "No additional global interface parameters supported",
-                    0x88: "Secure Channel supported as defined in TS 102 484",
-                    0x8C: "Secured APDU - Platform to Platform required as defined in TS 102 484",
-                    0x90: "Low Impedance drivers and protocol available on the I/O line available (see clause 7.2.1)",
-                    0xA0: "UICC-CLF interface supported as defined in TS 102 613",
-                    0xC0: "Inter-Chip USB UICC-Terminal interface supported as defined in TS 102 600"}
+                     0x88: "Secure Channel supported as defined in TS 102 484",
+                     0x8C: "Secured APDU - Platform to Platform required as defined in TS 102 484",
+                     0x90: "Low Impedance drivers and protocol available on the I/O line available (see clause 7.2.1)",
+                     0xA0: "UICC-CLF interface supported as defined in TS 102 613",
+                     0xC0: "Inter-Chip USB UICC-Terminal interface supported as defined in TS 102 600"}
             text = texts.get(v, "RFU")
     return [text, args]
 
