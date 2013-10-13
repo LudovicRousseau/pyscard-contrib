@@ -201,6 +201,7 @@ def TA3(v):
 def TA4(v):
     return TAn(4, v)
 
+
 def TA5(v):
     return TAn(5, v)
 
@@ -257,8 +258,10 @@ def TB3(v):
 def TB4(v):
     return TBn(4, v)
 
+
 def TB5(v):
     return TBn(5, v)
+
 
 def TBn(i, v):
     text = "Undocumented"
@@ -303,6 +306,7 @@ def TC3(v):
 def TC4(v):
     return TCn(4, v)
 
+
 def TC5(v):
     return TCn(5, v)
 
@@ -336,9 +340,6 @@ def TD3(v):
 
 def TD4(v):
     return TDn(4, v)
-
-def TD5(v):
-    return TDn(5, v)
 
 
 def TD5(v):
