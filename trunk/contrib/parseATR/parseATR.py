@@ -777,7 +777,7 @@ def colorize_html(l):
     left = '<span class="data">'
     right = '</span>'
 
-    text = '<tr><th align="right">' + html_escape(l[0]) + '</th>'
+    text = '<tr><th>' + html_escape(l[0]) + '</th>'
     if len(l) > 1:
         t = ""
         for line in l[1:]:
@@ -786,7 +786,7 @@ def colorize_html(l):
 
         if '\n' in t:
             t = "<pre>" + t + "</pre>"
-        text += '<th align="left"><span class="format">' + t + '</span></th></tr>'
+        text += '<th><span class="format">' + t + '</span></th></tr>'
     return text
 
 
