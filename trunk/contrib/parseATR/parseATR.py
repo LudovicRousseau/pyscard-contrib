@@ -887,7 +887,6 @@ def match_atr(atr, atr_file=None):
         if found:
             # found the ATR
             if atr != line:
-                card.append("")
                 card.append(line)
             for desc in file:
                 if desc == "\n":
@@ -911,6 +910,7 @@ if __name__ == "__main__":
 
     card = match_atr(ATR)
     if card:
-        print "Possibly identified card:", "\n\t".join(card)
+        print card
+        print "Possibly identified card:\n\t", "\n\t".join(card)
     else:
         print "Unknown card"
