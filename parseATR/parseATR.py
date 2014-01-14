@@ -880,7 +880,7 @@ def match_atr(atr, atr_file=None):
         # does the ATR in the file uses a RE?
         if re_match.search(line):
             # use the RE engine (slow)
-            found = re.match(line, atr)
+            found = re.match(line + "$", atr)
         else:
             # use string compare (fast)
             found = line == atr
