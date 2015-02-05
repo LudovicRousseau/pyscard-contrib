@@ -486,7 +486,7 @@ def command_chaining(cc):
     t = ["No logical channel\n", "by the interface device\n", "by the card\n", "by the interface device and card\n"]
     text.append("        - Logical channel number assignment: " + t[v])
 
-    text.append("        - Maximum number of logical channels: %d\n" % (cc & 7))
+    text.append("        - Maximum number of logical channels: %d\n" % (1 + cc & 7))
 
     return ''.join(text)
 
