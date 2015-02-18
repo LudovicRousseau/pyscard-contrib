@@ -856,9 +856,9 @@ def match_atr(atr, atr_file=None):
         db_list.append(cache + "/smartcard_list.txt")
 
         db_list += [os.environ['HOME'] + "/.smartcard_list.txt",
-            "/usr/local/pcsc/smartcard_list.txt",
-            "/usr/share/pcsc/smartcard_list.txt",
-            "/usr/local/share/pcsc/smartcard_list.txt"]
+                    "/usr/local/pcsc/smartcard_list.txt",
+                    "/usr/share/pcsc/smartcard_list.txt",
+                    "/usr/local/share/pcsc/smartcard_list.txt"]
         for atr_file in db_list:
             try:
                 file = open(atr_file)
