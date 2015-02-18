@@ -153,15 +153,19 @@ def parseATR(atr_txt):
             (t1, t2) = ("s", "are")
         else:
             (t1, t2) = ("", "is")
-        raise ParseAtrException("ERROR! ATR is truncated: %d byte%s %s missing" % (missing, t1, t2))
+        raise ParseAtrException("ERROR! ATR is truncated: %d byte%s %s missing"
+                                % (missing, t1, t2))
 
     return atr
 
 
 def TA1(v):
-    Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024, 1536, 2048, "RFU", "RFU")
-    Di = ("RFU", 1, 2, 4, 8, 16, 32, 64, 12, 20, "RFU", "RFU", "RFU", "RFU", "RFU", "RFU")
-    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU", "RFU")
+    Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024,
+          1536, 2048, "RFU", "RFU")
+    Di = ("RFU", 1, 2, 4, 8, 16, 32, 64, 12, 20, "RFU", "RFU", "RFU", "RFU",
+          "RFU", "RFU")
+    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU",
+            "RFU")
     F = v >> 4
     D = v & 0xF
 
@@ -469,7 +473,8 @@ def selection_mode(sm):
 
 
 def command_chaining(cc):
-    # Table 88 - Third software function table (command chaining, length fields and logical channels)
+    # Table 88 - Third software function table (command chaining,
+    # length fields and logical channels)
     # ISO 7816-4:2004, page 61
     text = list()
 
@@ -483,7 +488,8 @@ def command_chaining(cc):
         text.append("        - RFU (should not happen)\n")
 
     v = (cc >> 3) & 3
-    t = ["No logical channel\n", "by the interface device\n", "by the card\n", "by the interface device and card\n"]
+    t = ["No logical channel\n", "by the interface device\n", "by the card\n",
+         "by the interface device and card\n"]
     text.append("        - Logical channel number assignment: " + t[v])
 
     text.append("        - Maximum number of logical channels: %d\n" % (1 + cc & 7))
@@ -707,7 +713,8 @@ def analyse_histrorical_bytes(historical_bytes):
         text.append("   DIR data reference: %d")
         args.append(data_ref)
 
-    elif hb_category in (0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F):
+    elif hb_category in (0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
+                         0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F):
         text.append(" (Reserved for future use)")
 
     else:
@@ -801,7 +808,9 @@ def atr_display(atr, colorize):
 
     Y1 = atr["T0"] >> 4
     K = atr["T0"] & 0xF
-    text.append(["T0 = 0x%02X" % atr["T0"], ["Y(1): b%s, K: %d (historical bytes)", (int2bin(Y1, padding=4), K)]])
+    text.append(["T0 = 0x%02X" % atr["T0"],
+                 ["Y(1): b%s, K: %d (historical bytes)",
+                  (int2bin(Y1, padding=4), K)]])
 
     for i in (1, 2, 3, 4, 5):
         separator = False
