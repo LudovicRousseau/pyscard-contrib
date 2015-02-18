@@ -732,9 +732,9 @@ def colorize_line(line, left, right):
     if isinstance(line, types.StringTypes):
         return line
 
-    template = line[0].replace("%s", left + "%s" +
-        right).replace("%d", left + "%d" + right).replace("%g", left
-        + "%g" + right)
+    template = line[0]
+    for text in ["%s", "%d", "%g"]:
+        template = template.replace(text, left + text + right)
     flattened = template % line[1]
     return flattened
 
