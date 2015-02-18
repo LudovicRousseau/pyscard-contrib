@@ -40,12 +40,31 @@ class ParseAtrException(Exception):
 
 
 def toHexString(bytes):
-    """ return a hex list """
+    """Returns a hex list
+
+    Args:
+        bytes: list of bytes (integers)
+    Returns:
+        string representing the bytes in hexadecimal
+
+    >>> toHexString([1,2,3, 10, 255])
+    '01 02 03 0A FF'
+    """
     return " ".join(["%02X" % b for b in bytes])
 
 
 def toASCIIString(bytes):
-    """ return a string """
+    """Returns a string.
+
+    Args:
+        bytes: list of bytes (integers)
+    Returns:
+        string representing the list of bytes in ASCII. Non ASCII
+        characters are replaced with .
+
+    >>> toASCIIString([72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
+    'Hello world!'
+    """
     ascii = ""
     for b in bytes:
         if b > 31 and b < 127:
@@ -56,10 +75,18 @@ def toASCIIString(bytes):
 
 
 def normalize(atr):
-    """ transform an ATR in list of integers
+    """Transform an ATR in list of integers.
     valid input formats are
     "3B A7 00 40 18 80 65 A2 08 01 01 52"
     "3B:A7:00:40:18:80:65:A2:08:01:01:52"
+
+    Args:
+        atr: string
+    Returns:
+        list of bytes
+
+    >>> normalize("3B:A7:00:40:18:80:65:A2:08:01:01:52")
+    [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82]
     """
     atr = atr.replace(":", "")
     atr = atr.replace(" ", "")
@@ -76,7 +103,19 @@ def normalize(atr):
 
 
 def int2bin(i, padding=8):
-    """ convert an integer into its binary representation """
+    """Converts an integer into its binary representation
+
+    Args:
+        i: integer value
+        padding: minimum number of digits (default value 8)
+    Returns:
+        string representation of i in binary
+
+    >>> int2bin(2015)
+    '11111011111'
+    >>> int2bin(42)
+    '00101010'
+    """
     b = ""
     while i > 0:
         b = str(i % 2) + b
@@ -86,6 +125,18 @@ def int2bin(i, padding=8):
 
 
 def parseATR(atr_txt):
+    """Parses an ATR
+
+    Args:
+        atr_txt: ATR as a hex bytes string
+    Returns:
+        dictionary of field and values
+
+    >>> parseATR("3B A7 00 40 18 80 65 A2 08 01 01 52")
+    {'hbn': 7, 'TB1': 0, 'TC2': 24, 'TS': 59, 'T0': 167,
+     'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
+     'hb': [128, 101, 162, 8, 1, 1, 82], 'TD1': 64, 'pn': 2}
+    """
     atr_txt = normalize(atr_txt)
     atr = {}
 
@@ -160,6 +211,16 @@ def parseATR(atr_txt):
 
 
 def TA1(v):
+    """Parse TA1 value
+
+    Args:
+        v: TA1
+    Returns:
+        value according to ISO 7816-4
+
+    >>> TA1(0x11)
+    ['Fi=%s, Di=%s, %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)', (372, 1, 372, 10752, 13440, 5)]
+    """
     Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024,
           1536, 2048, "RFU", "RFU")
     Di = ("RFU", 1, 2, 4, 8, 16, 32, 64, 12, 20, "RFU", "RFU", "RFU", "RFU",
@@ -182,6 +243,16 @@ def TA1(v):
 
 
 def TA2(v):
+    """Parse TA2 value
+
+    Args:
+        v: TA2
+    Returns:
+        value according to ISO 7816-4
+
+    >>> TA2(1)
+    'Protocol to be used in spec mode: T=1 - Capable to change - defined by interface bytes'
+    """
     F = v >> 4
     D = v & 0xF
     text = ["Protocol to be used in spec mode: T=%s" % (D)]
@@ -199,18 +270,47 @@ def TA2(v):
 
 
 def TA3(v):
+    """Parse TA3 value
+
+    Args:
+        v: TA3
+    Returns:
+        value according to ISO 7816-4
+    """
     return TAn(3, v)
 
 
 def TA4(v):
+    """Parse TA4 value
+
+    Args:
+        v: TA4
+    Returns:
+        value according to ISO 7816-4
+    """
     return TAn(4, v)
 
 
 def TA5(v):
+    """Parse TA5 value
+
+    Args:
+        v: TA5
+    Returns:
+        value according to ISO 7816-4
+    """
     return TAn(5, v)
 
 
 def TAn(i, v):
+    """Parse TAi (3 <= i <= 5)
+
+    Args:
+        i: i
+        v: value of TAi
+    Returns:
+        value according to ISO 7816-4
+    """
     XI = ("not supported", "state L", "state H", "no preference")
     if (T == 1):
         text = "IFSC: %s"
@@ -237,6 +337,13 @@ def TAn(i, v):
 
 
 def TB1(v):
+    """Parse TB1 value
+
+    Args:
+        v: TB1
+    Returns:
+        value according to ISO 7816-4
+    """
     I = v >> 5
     PI = v & 0x1F
     if (PI == 0):
@@ -247,6 +354,13 @@ def TB1(v):
 
 
 def TB2(v):
+    """Parse TB2 value
+
+    Args:
+        v: TB2
+    Returns:
+        value according to ISO 7816-4
+    """
     text = ["Programming param PI2 (PI1 should be ignored): %d" % v, ]
     if ((v > 49) or (v < 251)):
         text.append(" (dV)")
@@ -256,18 +370,47 @@ def TB2(v):
 
 
 def TB3(v):
+    """Parse TB3 value
+
+    Args:
+        v: TB3
+    Returns:
+        value according to ISO 7816-4
+    """
     return TBn(3, v)
 
 
 def TB4(v):
+    """Parse TB4 value
+
+    Args:
+        v: TB4
+    Returns:
+        value according to ISO 7816-4
+    """
     return TBn(4, v)
 
 
 def TB5(v):
+    """Parse TB5 value
+
+    Args:
+        v: TB5
+    Returns:
+        value according to ISO 7816-4
+    """
     return TBn(5, v)
 
 
 def TBn(i, v):
+    """Parse TBi (3 <= i <= 5)
+
+    Args:
+        i: i
+        v: value of TBi
+    Returns:
+        value according to ISO 7816-4
+    """
     text = "Undocumented"
     args = list()
     if (T == 1):
@@ -292,6 +435,13 @@ def TBn(i, v):
 
 
 def TC1(v):
+    """Parse TC1 value
+
+    Args:
+        v: TC1
+    Returns:
+        value according to ISO 7816-4
+    """
     text = "Extra guard time: %d"
     args = v
     if (v == 255):
@@ -300,22 +450,58 @@ def TC1(v):
 
 
 def TC2(v):
+    """Parse TC2 value
+
+    Args:
+        v: TC2
+    Returns:
+        value according to ISO 7816-4
+    """
     return "Work waiting time: 960 x %d x (Fi/F)" % v
 
 
 def TC3(v):
+    """Parse TC3 value
+
+    Args:
+        v: TC3
+    Returns:
+        value according to ISO 7816-4
+    """
     return TCn(3, v)
 
 
 def TC4(v):
+    """Parse TC4 value
+
+    Args:
+        v: TC4
+    Returns:
+        value according to ISO 7816-4
+    """
     return TCn(4, v)
 
 
 def TC5(v):
+    """Parse TC5 value
+
+    Args:
+        v: TC5
+    Returns:
+        value according to ISO 7816-4
+    """
     return TCn(5, v)
 
 
 def TCn(i, v):
+    """Parse TCi (3 <= i <= 5)
+
+    Args:
+        i: i
+        v: value of TCi
+    Returns:
+        value according to ISO 7816-4
+    """
     text = list()
     args = list()
     if (T == 1):
@@ -331,26 +517,69 @@ def TCn(i, v):
 
 
 def TD1(v):
+    """Parse TD1 value
+
+    Args:
+        v: TD1
+    Returns:
+        value according to ISO 7816-4
+    """
     return TDn(1, v)
 
 
 def TD2(v):
+    """Parse TD2 value
+
+    Args:
+        v: TD2
+    Returns:
+        value according to ISO 7816-4
+    """
     return TDn(2, v)
 
 
 def TD3(v):
+    """Parse TD3 value
+
+    Args:
+        v: TD3
+    Returns:
+        value according to ISO 7816-4
+    """
     return TDn(3, v)
 
 
 def TD4(v):
+    """Parse TD4 value
+
+    Args:
+        v: TD4
+    Returns:
+        value according to ISO 7816-4
+    """
     return TDn(4, v)
 
 
 def TD5(v):
+    """Parse TD5 value
+
+    Args:
+        v: TD5
+    Returns:
+        value according to ISO 7816-4
+    """
     return TDn(5, v)
 
 
 def TDn(i, v):
+    """Parse TDi (1 <= i <= 5)
+
+    Args:
+        i: i
+        v: value of TDi
+    Returns:
+        value according to ISO 7816-4
+    """
     global T
     Y = v >> 4
     T = v & 0xF
@@ -361,8 +590,19 @@ def TDn(i, v):
 
 
 def life_cycle_status(lcs):
+    """Life Cycle Status
     # Table 13 - Life cycle status byte
     # ISO 7816-4:2004, page 21
+
+    Args:
+        lcs: Life Cycle Status
+
+    Returns:
+        Text value
+
+    >>> life_cycle_status(5)
+    'Operational state (activated)'
+    """
     text = "Unknown"
 
     if lcs > 15:
@@ -385,8 +625,18 @@ def life_cycle_status(lcs):
 
 
 def data_coding(dc):
+    """Data Coding
+
     # Table 87 - Second software function table (data coding byte)
     # ISO 7816-4:2004, page 60
+
+    Args:
+        dc: data coding
+
+    Returns:
+        Text value
+
+    """
     text = list()
 
     if dc & 128:
@@ -409,8 +659,17 @@ def data_coding(dc):
 
 
 def selection_methods(sm):
+    """Selection Methods
+
     # Table 86 - First software function table (selection methods)
     # ISO 7816-4:2004, page 60
+
+    Args:
+        sm: Selection Methods
+
+    Returns:
+        Text value
+    """
     text = list()
 
     if sm & 1:
@@ -441,8 +700,17 @@ def selection_methods(sm):
 
 
 def selection_mode(sm):
+    """Selection Mode
+
     # Table 87 - Second software function table (data coding byte)
     # ISO 7816-4:2004, page 60
+
+    Args:
+        sm: Selection Mode
+
+    Returns:
+        Text value
+    """
     text = list()
 
     if sm & 1:
@@ -473,9 +741,18 @@ def selection_mode(sm):
 
 
 def command_chaining(cc):
+    """Command Chaining
+
     # Table 88 - Third software function table (command chaining,
     # length fields and logical channels)
     # ISO 7816-4:2004, page 61
+
+    Args:
+        cc: Command Chaining
+
+    Returns:
+        Text value
+    """
     text = list()
 
     if cc & 128:
@@ -498,8 +775,17 @@ def command_chaining(cc):
 
 
 def card_service(cs):
+    """Card Service
+
     # Table 85 - Card service data byte
     # ISO 7816-4:2004, page 59
+
+    Args:
+        ccs Card Service
+
+    Returns:
+        Text value
+    """
     text = list()
 
     if cs & 128:
@@ -534,6 +820,17 @@ def card_service(cs):
 
 
 def compact_tlv(historical_bytes):
+    """Compact TLV
+
+    Args:
+        historical_bytes
+
+    Returns:
+        list of text values
+
+    >>> compact_tlv([101, 162, 8, 1, 1, 82])
+    ['    Tag: 6, Len: 5 (%s)\\n      Data: %s "%s"\\n', ('pre-issuing data', 'A2 08 01 01 52', '....R')]
+    """
     text = ""
     tlv = historical_bytes.pop(0)
 
@@ -665,6 +962,17 @@ def compact_tlv(historical_bytes):
 
 
 def analyse_histrorical_bytes(historical_bytes):
+    """Analyse Historical Bytes
+
+    Args:
+        historical_bytes: list of bytes
+
+    Returns:
+        list
+
+    >>> analyse_histrorical_bytes([128, 101, 162, 8, 1, 1, 82])
+    ['  Category indicator byte: 0x80', [' (compact TLV data object)\\n Tag: 6, Len: 5 (%s)\\n Data: %s "%s"\\n', ('pre-issuing data', 'A2 08 01 01 52', '....R')]]
+    """
     text = list()
     args = list()
 
@@ -725,6 +1033,14 @@ def analyse_histrorical_bytes(historical_bytes):
 
 
 def compute_tck(atr):
+    """Computes TCK (ATR checksum)
+
+    Args:
+        atr: list of bytes
+
+    Returns:
+        TCK value
+    """
     # do not include TS byte
     s = atr["atr"][0]
     for e in atr["atr"]:
@@ -735,7 +1051,21 @@ def compute_tck(atr):
 
 
 def colorize_line(line, left, right):
-    # colorize data from the format: foo: data, ...
+    """Colorize a line
+
+    Args:
+        line: a tuple of 2 elements with
+         - a line with substitution strings (%s, %d, %g)
+         - the values of substitution
+        left: string to add before the substitution
+        right: string to add after the substitution
+
+    Returns:
+        Text
+
+    >>> colorize_line(['foo%sbar', 1], 'a', 'b')
+    'fooa1bbar'
+    """
     if isinstance(line, StringTypes):
         return line
 
@@ -747,6 +1077,14 @@ def colorize_line(line, left, right):
 
 
 def colorize_txt(l):
+    """Colorize a text line using ANSI colors
+
+    args:
+        l: line or 2 elements tuple
+
+    Returns:
+        colorized line
+    """
     magenta = "\033[35m"
     normal = "\033[0m"
     blue = "\033[34m"
@@ -761,6 +1099,14 @@ def colorize_txt(l):
 
 
 def atr_display_txt(atr):
+    """Parse an ATR for a text display
+
+    Args:
+        atr: ATR
+
+    Returns:
+        Text
+    """
     return atr_display(atr, colorize_txt)
 
 html_escape_table = {
@@ -773,7 +1119,17 @@ html_escape_table = {
 
 
 def html_escape(text):
-    """Produce entities within text."""
+    """Produce entities within text.
+    
+    Args:
+        text: text containing special HTML characters
+
+    Returns:
+        same text with HTML character replaced by their HTML equivalent
+
+    >>> html_escape("&")
+    '&amp;'
+    """
     L = list()
     for c in text:
         L.append(html_escape_table.get(c, c))
@@ -781,6 +1137,14 @@ def html_escape(text):
 
 
 def colorize_html(l):
+    """Colorize a text line using HTML colors
+
+    args:
+        l: line or 2 elements tuple
+
+    Returns:
+        colorized line
+    """
     left = '<span class="data">'
     right = '</span>'
 
@@ -798,10 +1162,27 @@ def colorize_html(l):
 
 
 def atr_display_html(atr):
+    """Parse an ATR for a text display
+
+    Args:
+        atr: ATR
+
+    Returns:
+        Text in HTML format
+    """
     return atr_display(atr, colorize_html)
 
 
 def atr_display(atr, colorize):
+    """Parse an ATR for a given output
+
+    Args:
+        atr: ATR
+        colorize: colorization function
+
+    Returns:
+        Text
+    """
     text = list()
     TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
     text.append(["TS = 0x%02X" % atr["TS"], TS.get(atr["TS"], "Invalid")])
@@ -850,7 +1231,19 @@ def atr_display(atr, colorize):
 
 
 def match_atr(atr, atr_file=None):
-    """ try to find card description for a given ATR """
+    """Try to find card description for a given ATR.
+    
+    Args:
+        atr: ATR
+        atr_file: file containing a list of known ATRs
+
+    Returns:
+        list of card descriptions
+
+    >>> match_atr('3B A7 00 40 18 80 65 A2 08 01 01 52')
+    Using: /Users/rousseau/.cache/smartcard_list.txt
+    ['3B A7 00 40 .. 80 65 A2 08 .. .. ..', 'Gemplus GemSAFE Smart Card (8K)', 'Gemplus GPK8000', 'GemSAFE Smart Card (8K)']
+    """
     card = list()
     atr = toHexString(normalize(atr))
 
