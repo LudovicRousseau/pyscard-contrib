@@ -24,12 +24,12 @@ ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
 T = -1
 
-import exceptions
+from exceptions import Exception
 import re
-import types
+from types import StringTypes
 
 
-class ParseAtrException(exceptions.Exception):
+class ParseAtrException(Exception):
     """ Base class for exceptions in this module """
 
     def __init__(self, text):
@@ -736,7 +736,7 @@ def compute_tck(atr):
 
 def colorize_line(line, left, right):
     # colorize data from the format: foo: data, ...
-    if isinstance(line, types.StringTypes):
+    if isinstance(line, StringTypes):
         return line
 
     template = line[0]
