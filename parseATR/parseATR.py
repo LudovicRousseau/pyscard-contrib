@@ -18,15 +18,13 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-# $Id$
+from exceptions import Exception
+import re
+from types import StringTypes
 
 ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
 T = -1
-
-from exceptions import Exception
-import re
-from types import StringTypes
 
 
 class ParseAtrException(Exception):
@@ -1120,7 +1118,7 @@ html_escape_table = {
 
 def html_escape(text):
     """Produce entities within text.
-    
+
     Args:
         text: text containing special HTML characters
 
@@ -1234,7 +1232,7 @@ def atr_display(atr, colorize):
 
 def match_atr(atr, atr_file=None):
     """Try to find card description for a given ATR.
-    
+
     Args:
         atr: ATR
         atr_file: file containing a list of known ATRs
