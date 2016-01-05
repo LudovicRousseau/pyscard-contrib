@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """
     parseATRhtml: convert an ATR in a (HTML) human readable format
-    Copyright (C) 2009-2012   Ludovic Rousseau
+    Copyright (C) 2009-2016   Ludovic Rousseau
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
