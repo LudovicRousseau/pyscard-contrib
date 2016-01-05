@@ -20,23 +20,20 @@
 
 from parseATR import parseATR, atr_display_html
 
-header = """<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN"
- "http://www.w3.org/TR/1998/REC-html40-19980424/strict.dtd">
-
-<html>
+header = """<!DOCTYPE html>
+<html lang="en">
 <head>
+<meta charset="utf-8">
 <title>ATR Parsing</title>
 <style type="text/css">
-span.data{color: Dodgerblue;}
-span.format{color: Darkmagenta;}
+span.data{color: blue;}
+span.format{color: magenta;}
+table, th, td { border: 1px solid black; }
 </style>
 </head>
-<body>
-<table border="1">"""
+<body>"""
 
-footer = """</table>
-</body>
+footer = """</body>
 </html>"""
 
 
@@ -53,5 +50,7 @@ if __name__ == "__main__":
 
     print header
     print "<p>ATR: " + ATR + "<p>"
+    print "<table>"
     print html
+    print "</table>"
     print footer
