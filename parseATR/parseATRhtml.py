@@ -28,7 +28,8 @@ header = """<!DOCTYPE html>
 <style type="text/css">
 span.data{color: blue;}
 span.format{color: magenta;}
-table, th, td { border: 1px solid black; }
+table, th, td { border: 1px solid black; text-align: left; }
+.marge { margin-left: 1em; }
 </style>
 </head>
 <body>"""

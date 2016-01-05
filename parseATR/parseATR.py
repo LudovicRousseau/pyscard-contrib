@@ -1154,7 +1154,18 @@ def colorize_html(l):
             t += colored_line
 
         if '\n' in t:
-            t = "<pre>" + t + "</pre>"
+            lines = t.split('\n');
+            lines_out = []
+            for line in lines:
+                count = 0
+                while True:
+                    if line[:2] == '  ':
+                        count += 1
+                        line = line[2:]
+                    else:
+                        break
+                lines_out.append("<span class=\"marge\"></span>" * count + line)
+            t = '<br />'.join(lines_out)
         text += '<th><span class="format">' + t + '</span></th></tr>'
     else:
         text += '<th></th>'
