@@ -1039,12 +1039,10 @@ def compute_tck(atr):
     Returns:
         TCK value
     """
-    # do not include TS byte
-    s = atr["atr"][0]
-    for e in atr["atr"]:
+    # do not include TS byte and TCK byte
+    s = 0
+    for e in atr["atr"][1:-1]:
         s ^= e
-    # remove TCK
-    s ^= atr["atr"][-1]
     return s
 
 
