@@ -20,7 +20,6 @@
 
 from __future__ import print_function
 import re
-from types import StringTypes
 
 ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
@@ -1064,7 +1063,7 @@ def colorize_line(line, left, right):
     >>> colorize_line(['foo%sbar', 1], 'a', 'b')
     'fooa1bbar'
     """
-    if isinstance(line, StringTypes):
+    if isinstance(line, str):
         return line
 
     template = line[0]
