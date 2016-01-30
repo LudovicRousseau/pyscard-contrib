@@ -95,7 +95,7 @@ def normalize(atr):
     if len(atr) > 0:
         raise ParseAtrException('warning: odd string, remainder: %r' % atr)
 
-    atr = map(lambda x: int(x, 16), res)
+    atr = [int(x, 16) for x in res]
     return atr
 
 
