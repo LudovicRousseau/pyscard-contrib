@@ -18,7 +18,6 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from exceptions import Exception
 from __future__ import print_function
 import re
 from types import StringTypes
