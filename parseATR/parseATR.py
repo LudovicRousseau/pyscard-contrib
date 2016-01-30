@@ -835,7 +835,7 @@ def compact_tlv(historical_bytes):
     if tlv is None:
         return text
 
-    tag = tlv / 16
+    tag = int(tlv / 16)
     len = tlv % 16
 
     text = list()
