@@ -19,6 +19,7 @@
 """
 
 from exceptions import Exception
+from __future__ import print_function
 import re
 from types import StringTypes
 
@@ -1275,7 +1276,7 @@ def match_atr(atr, atr_file=None):
         for atr_file in db_list:
             try:
                 file = open(atr_file)
-                print "Using:", atr_file
+                print("Using:", atr_file)
                 break
             except:
                 pass
@@ -1317,13 +1318,13 @@ if __name__ == "__main__":
         # ATR = "3B A7 00 40 18 80 65 A2 08 01 01 52"
         ATR = "3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42 30 36 4E"
     atr = parseATR(ATR)
-    print "ATR:", toHexString(normalize(ATR))
+    print("ATR:", toHexString(normalize(ATR)))
     text = atr_display_txt(atr)
-    print text
+    print(text)
 
     card = match_atr(ATR)
     if card:
-        print card
-        print "Possibly identified card:\n\t", "\n\t".join(card)
+        print(card)
+        print("Possibly identified card:\n\t", "\n\t".join(card))
     else:
-        print "Unknown card"
+        print("Unknown card")
