@@ -816,6 +816,33 @@ def card_service(cs):
     return ''.join(text)
 
 
+def safe_get(historical_bytes, number):
+    """Get bytes from historical bytes without crashing if not enough
+    bytes are provided
+
+    Args:
+        historical_bytes
+        number
+
+    Returns:
+        list of values
+
+    >>> safe_get([1,2,3], 2)
+    [1, 2]
+
+    >>> safe_get([1,2,3], 4)
+    [1, 2, 3, 0]
+    """
+    result = list()
+    for i in range(number):
+        try:
+            v = historical_bytes[i]
+        except IndexError:
+            v = 0
+        result.append(v)
+    return result
+
+
 def compact_tlv(historical_bytes):
     """Compact TLV
 
@@ -896,8 +923,7 @@ def compact_tlv(historical_bytes):
                 args.append(sm)
                 args.append(selection_mode(sm))
         elif len == 2:
-            sm = historical_bytes[0]
-            dc = historical_bytes[1]
+            (sm, dc) = safe_get(historical_bytes, 2)
             text.append("      Selection methods: %d\n%s")
             args.append(sm)
             args.append(selection_methods(sm))
@@ -905,9 +931,7 @@ def compact_tlv(historical_bytes):
             args.append(dc)
             args.append(data_coding(dc))
         elif len == 3:
-            sm = historical_bytes[0]
-            dc = historical_bytes[1]
-            cc = historical_bytes[2]
+            (sm, dc, cc) = safe_get(historical_bytes, 3)
             text.append("      Selection methods: %d\n%s")
             args.append(sm)
             args.append(selection_mode(sm))
@@ -927,14 +951,11 @@ def compact_tlv(historical_bytes):
             text.append("      LCS (life card cycle): %d\n")
             args.append(lcs)
         elif len == 2:
-            sw1 = historical_bytes[0]
-            sw2 = historical_bytes[1]
+            (sw1, sw2) = safe_get(historical_bytes, 2)
             text.append("      SW: %s")
             args.append("%02X %02X" % (sw1, sw2))
         elif len == 3:
-            lcs = historical_bytes[0]
-            sw1 = historical_bytes[1]
-            sw2 = historical_bytes[2]
+            (lcs, sw1, sw2) = safe_get(historical_bytes, 3)
             text.append("      LCS (life card cycle): %d\n")
             args.append(lcs)
             text.append("      SW: %s")
