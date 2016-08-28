@@ -341,12 +341,17 @@ def TB1(v):
     Returns:
         value according to ISO 7816-3
     """
-    I = v >> 5
+    I_tab = { 0: "25 milliAmperes",
+             1: "50 milliAmperes",
+             2: "100 milliAmperes",
+             3: "RFU"
+            }
+    I = (v >> 5) & 3
     PI = v & 0x1F
     if (PI == 0):
         text = "VPP is not electrically connected"
     else:
-        text = "Programming Param P: %d Volts, I: %d milliamperes" % (PI, I)
+        text = "Programming Param P: %d Volts, I: %s" % (PI, I_tab[I])
     return text
 
 
