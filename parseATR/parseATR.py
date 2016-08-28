@@ -213,7 +213,7 @@ def TA1(v):
     Args:
         v: TA1
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
 
     >>> TA1(0x11)
     ['Fi=%s, Di=%s, %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)', (372, 1, 372, 10752, 13440, 5)]
@@ -245,7 +245,7 @@ def TA2(v):
     Args:
         v: TA2
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
 
     >>> TA2(1)
     'Protocol to be used in spec mode: T=1 - Capable to change - defined by interface bytes'
@@ -272,7 +272,7 @@ def TA3(v):
     Args:
         v: TA3
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TAn(3, v)
 
@@ -283,7 +283,7 @@ def TA4(v):
     Args:
         v: TA4
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TAn(4, v)
 
@@ -294,7 +294,7 @@ def TA5(v):
     Args:
         v: TA5
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TAn(5, v)
 
@@ -306,7 +306,7 @@ def TAn(i, v):
         i: i
         v: value of TAi
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     XI = ("not supported", "state L", "state H", "no preference")
     if (T == 1):
@@ -339,7 +339,7 @@ def TB1(v):
     Args:
         v: TB1
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     I = v >> 5
     PI = v & 0x1F
@@ -356,7 +356,7 @@ def TB2(v):
     Args:
         v: TB2
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     text = ["Programming param PI2 (PI1 should be ignored): %d" % v, ]
     if ((v > 49) or (v < 251)):
@@ -372,7 +372,7 @@ def TB3(v):
     Args:
         v: TB3
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TBn(3, v)
 
@@ -383,7 +383,7 @@ def TB4(v):
     Args:
         v: TB4
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TBn(4, v)
 
@@ -394,7 +394,7 @@ def TB5(v):
     Args:
         v: TB5
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TBn(5, v)
 
@@ -406,7 +406,7 @@ def TBn(i, v):
         i: i
         v: value of TBi
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     text = "Undocumented"
     args = list()
@@ -437,7 +437,7 @@ def TC1(v):
     Args:
         v: TC1
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     text = "Extra guard time: %d"
     args = v
@@ -452,7 +452,7 @@ def TC2(v):
     Args:
         v: TC2
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return "Work waiting time: 960 x %d x (Fi/F)" % v
 
@@ -463,7 +463,7 @@ def TC3(v):
     Args:
         v: TC3
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TCn(3, v)
 
@@ -474,7 +474,7 @@ def TC4(v):
     Args:
         v: TC4
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TCn(4, v)
 
@@ -485,7 +485,7 @@ def TC5(v):
     Args:
         v: TC5
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TCn(5, v)
 
@@ -497,7 +497,7 @@ def TCn(i, v):
         i: i
         v: value of TCi
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     text = list()
     args = list()
@@ -519,7 +519,7 @@ def TD1(v):
     Args:
         v: TD1
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TDn(1, v)
 
@@ -530,7 +530,7 @@ def TD2(v):
     Args:
         v: TD2
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TDn(2, v)
 
@@ -541,7 +541,7 @@ def TD3(v):
     Args:
         v: TD3
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TDn(3, v)
 
@@ -552,7 +552,7 @@ def TD4(v):
     Args:
         v: TD4
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TDn(4, v)
 
@@ -563,7 +563,7 @@ def TD5(v):
     Args:
         v: TD5
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     return TDn(5, v)
 
@@ -575,7 +575,7 @@ def TDn(i, v):
         i: i
         v: value of TDi
     Returns:
-        value according to ISO 7816-4
+        value according to ISO 7816-3
     """
     global T
     Y = v >> 4
