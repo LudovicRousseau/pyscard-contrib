@@ -1374,9 +1374,23 @@ if __name__ == "__main__":
     text = atr_display_txt(atr)
     print(text)
 
-    card = match_atr(ATR)
+    card = match_atr_differentiated(ATR)
     if card:
         print(card)
-        print("Possibly identified card:\n\t", "\n\t".join(card))
+
+        # exact match
+        if ATR in card:
+            print("Exact match:", ATR)
+            for d in card[ATR]:
+                print("\t", d)
+
+            # remove the entry so it is not displayed as "RE match"
+            del card[ATR]
+
+        # RE match
+        for atr in card:
+            print("Possibly identified card:", atr)
+            for d in card[atr]:
+                print("\t", d)
     else:
         print("Unknown card")
