@@ -1279,9 +1279,35 @@ def match_atr(atr, atr_file=None):
 
     >>> match_atr('3B A7 00 40 18 80 65 A2 08 01 01 52')
     Using: /Users/rousseau/.cache/smartcard_list.txt
-    ['3B A7 00 40 .. 80 65 A2 08 .. .. ..', 'Gemplus GemSAFE Smart Card (8K)', 'Gemplus GPK8000', 'GemSAFE Smart Card (8K)']
+    ['Gemplus GPK8000', 'GemSAFE Smart Card (8K)', '3B A7 00 40 .. 80 65 A2 08 .. .. ..', 'Gemplus GemSAFE Smart Card (8K)']
     """
-    card = list()
+
+    cards = match_atr_differentiated(atr, atr_file)
+
+    # return only the card descriptions to be backward compatible
+    result = list()
+    for key in cards:
+        result += cards[key]
+
+    return result
+
+
+def match_atr_differentiated(atr, atr_file=None):
+    """Try to find card description for a given ATR.
+
+    Args:
+        atr: ATR
+        atr_file: file containing a list of known ATRs
+
+    Returns:
+        A dictionnary containing the matching ATR and corresponding card
+        descriptions
+
+    >>> match_atr_differentiated('3B A7 00 40 18 80 65 A2 08 01 01 52')
+    Using: /Users/rousseau/.cache/smartcard_list.txt
+    {'3B A7 00 40 .. 80 65 A2 08 .. .. ..': ['Gemplus GemSAFE Smart Card (8K)'], '3B A7 00 40 18 80 65 A2 08 01 01 52': ['Gemplus GPK8000', 'GemSAFE Smart Card (8K)']}
+    """
+    cards = dict()
     atr = toHexString(normalize(atr))
 
     if atr_file is None:
@@ -1323,17 +1349,18 @@ def match_atr(atr, atr_file=None):
         else:
             # use string compare (fast)
             found = line == atr
+
         if found:
             # found the ATR
-            if atr != line:
-                card.append(line)
+            key = line
+            cards[key] = list()
             for desc in file:
                 if desc == "\n":
                     break
                 # get all the possible card descriptions
-                card.append(desc.strip())
+                cards[key].append(desc.strip())
     file.close()
-    return card
+    return cards
 
 if __name__ == "__main__":
     import sys
