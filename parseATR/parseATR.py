@@ -848,7 +848,7 @@ def safe_get(historical_bytes, number):
     return result
 
 
-def compact_tlv(historical_bytes):
+def compact_tlv(atr, historical_bytes):
     """Compact TLV
 
     Args:
@@ -857,7 +857,7 @@ def compact_tlv(historical_bytes):
     Returns:
         list of text values
 
-    >>> compact_tlv([101, 162, 8, 1, 1, 82])
+    >>> compact_tlv({}, [101, 162, 8, 1, 1, 82])
     ['    Tag: 6, Len: 5 (%s)\\n      Data: %s "%s"\\n', ('pre-issuing data', 'A2 08 01 01 52', '....R')]
     """
     text = ""
@@ -981,7 +981,7 @@ def compact_tlv(historical_bytes):
     return [''.join(text), tuple(args)]
 
 
-def analyse_histrorical_bytes(historical_bytes):
+def analyse_histrorical_bytes(atr, historical_bytes):
     """Analyse Historical Bytes
 
     Args:
@@ -990,7 +990,7 @@ def analyse_histrorical_bytes(historical_bytes):
     Returns:
         list
 
-    >>> analyse_histrorical_bytes([128, 101, 162, 8, 1, 1, 82])
+    >>> analyse_histrorical_bytes({}, [128, 101, 162, 8, 1, 1, 82])
     ['  Category indicator byte: 0x80', [' (compact TLV data object)\\n Tag: 6, Len: 5 (%s)\\n Data: %s "%s"\\n', ('pre-issuing data', 'A2 08 01 01 52', '....R')]]
     """
     text = list()
@@ -1016,7 +1016,7 @@ def analyse_histrorical_bytes(historical_bytes):
         del historical_bytes[-3:]
 
         while len(historical_bytes) > 0:
-            [t, a] = compact_tlv(historical_bytes)
+            [t, a] = compact_tlv(atr, historical_bytes)
             text.append(t)
             args += a
 
@@ -1031,7 +1031,7 @@ def analyse_histrorical_bytes(historical_bytes):
     elif hb_category == 0x80:
         text.append(" (compact TLV data object)\n")
         while len(historical_bytes) > 0:
-            [t, a] = compact_tlv(historical_bytes)
+            [t, a] = compact_tlv(atr, historical_bytes)
             text.append(t)
             args += a
 
@@ -1244,7 +1244,7 @@ def atr_display(atr, colorize):
         t.append(toHexString(atr["hb"]))
         text.append(t)
 
-        t = analyse_histrorical_bytes(atr["hb"])
+        t = analyse_histrorical_bytes(atr, atr["hb"])
         if t:
             text.append(t)
 
