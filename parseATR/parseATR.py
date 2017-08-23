@@ -201,8 +201,7 @@ def parseATR(atr_txt):
             (t1, t2) = ("s", "are")
         else:
             (t1, t2) = ("", "is")
-        raise ParseAtrException("ERROR! ATR is truncated: %d byte%s %s missing"
-                                % (missing, t1, t2))
+        atr["warning"] = "ATR is truncated: %d byte%s %s missing" % (missing, t1, t2)
 
     return atr
 
