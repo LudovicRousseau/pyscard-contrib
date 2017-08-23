@@ -892,11 +892,8 @@ def compact_tlv(historical_bytes):
         except IndexError:
             text.append("Error in the ATR: expecting 1 byte and got 0\n")
         else:
-            if cs is None:
-                text.append("      Error in the ATR: expecting 1 byte and got 0")
-            else:
-                text.append("      Card service data byte: %d\n%s")
-                args += (cs, card_service(cs))
+            text.append("      Card service data byte: %d\n%s")
+            args += (cs, card_service(cs))
 
     elif tag == 4:
         args.append("initial access data")
