@@ -1376,8 +1376,6 @@ if __name__ == "__main__":
 
     card = match_atr_differentiated(ATR)
     if card:
-        print(card)
-
         # exact match
         if ATR in card:
             print("Exact match:", ATR)
