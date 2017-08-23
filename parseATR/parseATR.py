@@ -1186,14 +1186,31 @@ def colorize_html(l):
             lines_out = []
             for line in lines:
                 count = 0
+
+                hasLeft = False
+                if line.startswith(left):
+                    hasLeft = True
+                    line = line[len(left):]
+
+                hasRight = False
+                if line.startswith(right):
+                    hasRight = True
+                    line = line[len(right):]
+
                 while True:
                     if line[:2] == '  ':
                         count += 1
                         line = line[2:]
                     else:
                         break
+
+                if hasLeft:
+                    line = left + line
+                if hasRight:
+                    line = right + line
+
                 lines_out.append("<span class=\"marge\"></span>" * count + line)
-            t = '<br />'.join(lines_out)
+            t = '<br />\n'.join(lines_out)
         text += '<th><span class="format">' + t + '</span></th></tr>'
     else:
         text += '<th></th>'
