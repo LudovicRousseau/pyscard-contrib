@@ -1372,6 +1372,11 @@ if __name__ == "__main__":
     print("ATR:", toHexString(normalize(ATR)))
     text = atr_display_txt(atr)
     print(text)
+    if "warning" in atr:
+        red = "\033[31m"
+        normal = "\033[0m"
+        print(red + "Error: " + atr["warning"] + normal)
+    print()
 
     card = match_atr_differentiated(ATR)
     if card:
