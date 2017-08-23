@@ -890,7 +890,9 @@ def compact_tlv(atr, historical_bytes):
         try:
             cs = historical_bytes[0]
         except IndexError:
-            text.append("Error in the ATR: expecting 1 byte and got 0\n")
+            warning = "Error in the ATR: expecting 1 byte and got 0\n"
+            text.append(warning)
+            atr["warning"] = warning
         else:
             text.append("      Card service data byte: %d\n%s")
             args += (cs, card_service(cs))
@@ -919,7 +921,9 @@ def compact_tlv(atr, historical_bytes):
             try:
                 sm = historical_bytes[0]
             except IndexError:
-                text.append("Error in the ATR: expecting 1 byte and got 0\n")
+                warning = "Error in the ATR: expecting 1 byte and got 0\n"
+                text.append(warning)
+                atr["warning"] = warning
             else:
                 text.append("      Selection methods: %d\n%s")
                 args.append(sm)
@@ -1008,7 +1012,9 @@ def analyse_histrorical_bytes(atr, historical_bytes):
         text.append(" (compact TLV data object)\n")
 
         if len(historical_bytes) < 3:
-            text.append("    Error in the ATR: expecting 3 bytes and got %d" % len(historical_bytes))
+            warning = "Error in the ATR: expecting 3 bytes and got %d" % len(historical_bytes)
+            text.append(warning)
+            atr["warning"] = warning
             return ''.join(text)
 
         # get the 3 last bytes
