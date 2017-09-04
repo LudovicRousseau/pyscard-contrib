@@ -588,6 +588,9 @@ def TDn(i, v):
     text = "Y(i+1) = b%s, Protocol T=%d"
     args = (int2bin(Y, 4), T)
 
+    if 1 == i and 15 == T:
+        text += " (INVALID VALUE for TD1)"
+
     return [text, args]
 
 
