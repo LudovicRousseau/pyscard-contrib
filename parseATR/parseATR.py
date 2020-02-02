@@ -1285,6 +1285,7 @@ def atr_display(atr, colorize):
 
     if "extra" in atr:
         text.append(["Extra bytes", toHexString(atr["extra"])])
+        atr["warning"] = "Extra bytes: " + toHexString(atr["extra"])
 
     return "\n".join([colorize(t) for t in text])
 
