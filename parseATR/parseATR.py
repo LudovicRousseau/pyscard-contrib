@@ -363,7 +363,7 @@ def TB2(v):
         value according to ISO 7816-3
     """
     text = ["Programming param PI2 (PI1 should be ignored): %d" % v, ]
-    if ((v > 49) or (v < 251)):
+    if (v > 49) and (v < 251):
         text.append(" (dV)")
     else:
         text.append(" is RFU")
