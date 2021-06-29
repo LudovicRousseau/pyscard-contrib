@@ -1177,7 +1177,40 @@ def colorize_html(l):
     left = '<span class="data">'
     right = '</span>'
 
-    text = '<tr><th>' + html_escape(l[0]) + '</th>'
+    blog = {
+            'TS': "2016/02/atr-statistics-ts-initial-character.html",
+            'T0': "2016/03/atr-statistics-t0-format-byte.html",
+            'TA(1)': "2016/04/atr-statistics-ta1-global-encodes-fi.html",
+            'TB(1)': "2016/08/atr-statistics-tb1-global-deprecated.html",
+            'TC(1)': "2016/09/atr-statistics-tc1-global-encodes-n.html",
+            'TD(1)': "2016/11/atr-statistics-td1-structural-encodes.html",
+            'TA(2)': "2016/12/atr-statistics-ta2-global-specific-mode.html",
+            'TB(2)': "2016/12/atr-statistics-tb2-global-deprecated.html",
+            'TC(2)': "2017/03/atr-statistics-tc2-specific-to-t0.html",
+            'TD(2)': "2017/09/atr-statistics-td2-structural-encodes.html",
+            'TA(3)': "017/09/atr-statistics-ta3-specific-to-t-after.html",
+            'TB(3)': "2018/05/atr-statistics-tb3-global-after-t15-in.html",
+            'TC(3)': "2019/03/atr-statistics-tc3.html",
+            'TD(3)': "2019/03/atr-statistics-td3-structural-encodes.html",
+            'TA(4)': "2019/03/atr-statistics-ta4.html",
+            'TB(4)': "2020/01/atr-statistics-tb4-global-after-t15-in.html",
+            'TC(4)': "2020/03/atr-statistics-tc4.html",
+            'Historical bytes': "2020/03/atr-statistics-historical-bytes.html",
+            'TCK': "2020/03/atr-statistics-tck-check-byte-tck.html"
+            }
+
+    text = html_escape(l[0])
+    if "=" in text:
+        # the line is in the form "T0 = 0xA4"
+        (name, value) = l[0].split("=")
+        name = name.strip()
+        if name in blog:
+            name = '<a href="https://ludovicrousseau.blogspot.com/%s">%s</a>' % (blog[name], name)
+        text = "%s = %s" % (name, value)
+    elif text == "Historical bytes":
+        text = '<a href="https://ludovicrousseau.blogspot.com/%s">%s</a>' % (blog[text], text)
+
+    text = '<tr><th>' + text + '</th>'
     if len(l) > 1:
         t = ""
         for line in l[1:]:
