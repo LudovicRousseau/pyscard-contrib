@@ -49,9 +49,9 @@ if __name__ == "__main__":
     # print "ATR:", ATR
     html = atr_display_html(atr)
 
-    print header
-    print "<p>ATR: " + ATR + "<p>"
-    print "<table>"
-    print html
-    print "</table>"
-    print footer
+    print(header)
+    print("<p>ATR: " + ATR + "<p>")
+    print("<table>")
+    print(html)
+    print("</table>")
+    print(footer)
