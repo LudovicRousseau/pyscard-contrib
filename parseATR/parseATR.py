@@ -654,7 +654,7 @@ def data_coding(dc):
     text.append(t[v])
 
     text.append("        - Value 'FF' for the first byte of BER-TLV tag fields: ")
-    if dc & 16:
+    if (dc & 16) == 0:
         text.append("in")
     text.append("valid\n")
 
