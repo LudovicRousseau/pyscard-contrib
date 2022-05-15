@@ -39,7 +39,9 @@ def stress(atr_list):
         print("ATR:", atr)
 
         try:
-            txt = parseATR.atr_display_txt(parseATR.parseATR(atr))
+            parsed_atr = parseATR.parseATR(atr)
+            txt = parseATR.atr_display_txt(parsed_atr)
+            simple = parseATR.simplifyDescription(parsed_atr)
         except parseATR.ParseAtrException as e:
             print(e)
         else:
