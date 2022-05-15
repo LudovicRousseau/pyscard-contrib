@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
     parseATR: convert an ATR in a human readable format
     Copyright (C) 2009-2016   Ludovic Rousseau
@@ -130,10 +130,50 @@ def parseATR(atr_txt):
         dictionary of field and values
 
     >>> parseATR("3B A7 00 40 18 80 65 A2 08 01 01 52")
-    {'hbn': 7, 'TB1': 0, 'TC2': 24, 'TS': 59, 'T0': 167,
-     'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
-     'hb': [128, 101, 162, 8, 1, 1, 82], 'TD1': 64, 'pn': 2}
+{ 'T0': { 'description': ['Y(1): b%s, K: %d (historical bytes)', ('1010', 7)],
+          'value': 167},
+  'TB': {1: {'description': 'VPP is not electrically connected', 'value': 0}},
+  'TC': { 2: { 'description': 'Work waiting time: 960 x 24 x (Fi/F)',
+               'value': 24}},
+  'TD': { 1: { 'description': ['Y(i+1) = b%s, Protocol T=%d', ('0100', 0)],
+               'value': 64}},
+  'TS': {'description': 'Direct Convention', 'value': 59},
+  'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
+  'hb': { 'description': [ '  Category indicator byte: 0x80',
+                           [ ' (compact TLV data object)\n'
+                             '    Tag: 6, Len: 5 (%s)\n'
+                             '      Data: %s "%s"\n',
+                             ('pre-issuing data', 'A2 08 01 01 52', '....R')]],
+          'value': [128, 101, 162, 8, 1, 1, 82]},
+  'hbn': 7,
+  'pn': 2}
     """
+
+    atr = decomposeATR(atr_txt)
+    documentATR(atr)
+
+    return atr
+
+def decomposeATR(atr_txt):
+    """Decompose the ATR in elementary fields
+
+    Args:
+        atr_txt: ATR as a hex bytes string
+    Returns:
+        dictionary of field and values
+
+    >>> decomposeATR("3B A7 00 40 18 80 65 A2 08 01 01 52")
+{ 'T0': {'value': 167},
+  'TB': {1: {'value': 0}},
+  'TC': {2: {'value': 24}},
+  'TD': {1: {'value': 64}},
+  'TS': {'value': 59},
+  'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
+  'hb': {'value': [128, 101, 162, 8, 1, 1, 82]},
+  'hbn': 7,
+  'pn': 2}
+    """
+
     atr_txt = normalize(atr_txt)
     atr = {}
 
@@ -141,9 +181,10 @@ def parseATR(atr_txt):
     atr["atr"] = atr_txt
 
     # store TS and T0
-    atr["TS"] = atr_txt[0]
-    atr["T0"] = TDi = atr_txt[1]
-    hb_length = atr["T0"] & 15
+    atr["TS"] = {"value": atr_txt[0]}
+    TDi = atr_txt[1]
+    atr["T0"] = {"value": TDi}
+    hb_length = TDi & 15
     pointer = 1
     # protocol number
     pn = 1
@@ -155,22 +196,31 @@ def parseATR(atr_txt):
         # Check TAi is present
         if ((TDi | 0xEF) == 0xFF):
             pointer += 1
-            atr["TA%d" % pn] = atr_txt[pointer]
+            if not "TA" in atr:
+                atr["TA"] = dict()
+            atr["TA"][pn] = {"value": atr_txt[pointer]}
 
         # Check TBi is present
         if ((TDi | 0xDF) == 0xFF):
             pointer += 1
-            atr["TB%d" % pn] = atr_txt[pointer]
+            if not "TB" in atr:
+                atr["TB"] = dict()
+            atr["TB"][pn] = {"value": atr_txt[pointer]}
 
         # Check TCi is present
         if ((TDi | 0xBF) == 0xFF):
             pointer += 1
-            atr["TC%d" % pn] = atr_txt[pointer]
+            if not "TC" in atr:
+                atr["TC"] = dict()
+            atr["TC"][pn] = {"value": atr_txt[pointer]}
 
         # Check TDi is present
         if ((TDi | 0x7F) == 0xFF):
             pointer += 1
-            atr["TD%d" % pn] = TDi = atr_txt[pointer]
+            if not "TD" in atr:
+                atr["TD"] = dict()
+            TDi = atr_txt[pointer]
+            atr["TD"][pn] = {"value": TDi}
             if ((TDi & 0x0F) != ATR_PROTOCOL_TYPE_T0):
                 atr["TCK"] = True
             pn += 1
@@ -181,22 +231,22 @@ def parseATR(atr_txt):
     atr["pn"] = pn
 
     # Store historical bytes
-    atr["hb"] = atr_txt[pointer + 1: pointer + 1 + hb_length]
+    atr["hb"] = {"value": atr_txt[pointer + 1: pointer + 1 + hb_length]}
 
     # Store TCK
     last = pointer + 1 + hb_length
     if "TCK" in atr:
         try:
-            atr["TCK"] = atr_txt[last]
+            atr["TCK"] = {"value": atr_txt[last]}
         except IndexError:
-            atr["TCK"] = -1
+            atr["TCK"] = {"value": -1}
         last += 1
 
     if len(atr_txt) > last:
         atr["extra"] = atr_txt[last:]
 
-    if len(atr["hb"]) < hb_length:
-        missing = hb_length - len(atr["hb"])
+    if len(atr["hb"]["value"]) < hb_length:
+        missing = hb_length - len(atr["hb"]["value"])
         if missing > 1:
             (t1, t2) = ("s", "are")
         else:
@@ -233,7 +283,8 @@ def TA1(v):
     else:
         value = Fi[F] / Di[D]
         text += ", %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)"
-        args += (value, 4000000 / value, FMax[F] * 1000000 / value, FMax[F])
+        args += (value, int(4000000 / value), int(FMax[F] * 1000000 /
+                value), FMax[F])
 
     return [text, args]
 
@@ -988,7 +1039,7 @@ def compact_tlv(atr, historical_bytes):
     return [''.join(text), tuple(args)]
 
 
-def analyse_histrorical_bytes(atr, historical_bytes):
+def analyse_historical_bytes(atr, historical_bytes):
     """Analyse Historical Bytes
 
     Args:
@@ -997,7 +1048,7 @@ def analyse_histrorical_bytes(atr, historical_bytes):
     Returns:
         list
 
-    >>> analyse_histrorical_bytes({}, [128, 101, 162, 8, 1, 1, 82])
+    >>> analyse_historical_bytes({}, [128, 101, 162, 8, 1, 1, 82])
     ['  Category indicator byte: 0x80', [' (compact TLV data object)\\n Tag: 6, Len: 5 (%s)\\n Data: %s "%s"\\n', ('pre-issuing data', 'A2 08 01 01 52', '....R')]]
     """
     text = list()
@@ -1005,27 +1056,29 @@ def analyse_histrorical_bytes(atr, historical_bytes):
 
     # return if we have NO historical bytes
     if len(historical_bytes) == 0:
-        return ""
+        return
 
-    hb_category = historical_bytes.pop(0)
+    # make a local copy since we will consume hb
+    hb = list(historical_bytes)
 
+    hb_category = hb.pop(0)
     left = "  Category indicator byte: 0x%02X" % hb_category
 
     if hb_category == 0x00:
         text.append(" (compact TLV data object)\n")
 
-        if len(historical_bytes) < 3:
-            warning = "Error in the ATR: expecting 3 bytes and got %d" % len(historical_bytes)
+        if len(hb) < 3:
+            warning = "Error in the ATR: expecting 3 bytes and got %d" % len(hb)
             text.append(warning)
             atr["warning"] = warning
             return ''.join(text)
 
         # get the 3 last bytes
-        status = historical_bytes[-3:]
-        del historical_bytes[-3:]
+        status = hb[-3:]
+        del hb[-3:]
 
-        while len(historical_bytes) > 0:
-            [t, a] = compact_tlv(atr, historical_bytes)
+        while len(hb) > 0:
+            [t, a] = compact_tlv(atr, hb)
             text.append(t)
             args += a
 
@@ -1033,20 +1086,19 @@ def analyse_histrorical_bytes(atr, historical_bytes):
         text.append("    Mandatory status indicator (3 last bytes)\n")
         text.append("      LCS (life card cycle): %d (%s)\n")
         args += (lcs, life_cycle_status(lcs))
-        text.append("      SW: %s (%s)")
+        text.append("      SW: %s")
         args.append("%02X %02X" % (sw1, sw2))
-        args.append("")  # Chipcard::PCSC::Card::ISO7816Error("$sw1 $sw2"))
 
     elif hb_category == 0x80:
         text.append(" (compact TLV data object)\n")
-        while len(historical_bytes) > 0:
-            [t, a] = compact_tlv(atr, historical_bytes)
+        while len(hb) > 0:
+            [t, a] = compact_tlv(atr, hb)
             text.append(t)
             args += a
 
     elif hb_category == 0x10:
         text.append(" (next byte is the DIR data reference)\n")
-        data_ref = historical_bytes.pop(0)
+        data_ref = hb.pop(0)
         text.append("   DIR data reference: %d")
         args.append(data_ref)
 
@@ -1056,7 +1108,7 @@ def analyse_histrorical_bytes(atr, historical_bytes):
 
     else:
         text.append(" (proprietary format) \"%s\"")
-        args.append(toASCIIString(historical_bytes))
+        args.append(toASCIIString(hb))
 
     return [left, ["".join(text), tuple(args)]]
 
@@ -1265,6 +1317,54 @@ def atr_display_html(atr):
     return atr_display(atr, colorize_html)
 
 
+def documentATR(atr):
+    """Add ATR documentation
+
+    Args:
+        atr: ATR in a dictionnary
+
+    Returns:
+        atr with description in ["description"] keys
+    """
+    TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
+    atr["TS"]["description"] = TS.get(atr["TS"]["value"], "Invalid")
+
+    Y1 = atr["T0"]["value"] >> 4
+    K = atr["T0"]["value"] & 0xF
+    atr["T0"]["description"] = ["Y(1): b%s, K: %d (historical bytes)",
+                  (int2bin(Y1, padding=4), K)]
+
+    for i in (1, 2, 3, 4, 5):
+        separator = False
+        for p in ("A", "B", "C", "D"):
+            key = "T%s" % p
+            if key in atr and i in atr[key]:
+                v = atr[key][i]["value"]
+                atr[key][i]["description"] = eval("%s%d(%d)" % (key, i, v))
+
+    if "hb" in atr:
+        hb = atr["hb"]["value"]
+        atr["hb"]["description"] = toHexString(hb)
+
+        atr["hb"]["description"] = analyse_historical_bytes(atr, hb)
+
+    if "TCK" in atr:
+        tck = compute_tck(atr)
+        if tck == atr["TCK"]["value"]:
+            t = "correct checksum"
+        else:
+            t = "WRONG CHECKSUM, expected 0x%02X" % tck
+        atr["TCK"]["description"] = t
+
+    if "extra" in atr:
+        atr["warning"] = "Extra bytes: " + toHexString(atr["extra"])
+
+    return atr
+
+
+def format_line(atr, key):
+    return ["%s = 0x%02X" % (key, atr[key]["value"]), atr[key]["description"]]
+
 def atr_display(atr, colorize):
     """Parse an ATR for a given output
 
@@ -1276,49 +1376,32 @@ def atr_display(atr, colorize):
         Text
     """
     text = list()
-    TS = {0x3B: "Direct Convention", 0x3F: "Inverse Convention"}
-    text.append(["TS = 0x%02X" % atr["TS"], TS.get(atr["TS"], "Invalid")])
-
-    Y1 = atr["T0"] >> 4
-    K = atr["T0"] & 0xF
-    text.append(["T0 = 0x%02X" % atr["T0"],
-                 ["Y(1): b%s, K: %d (historical bytes)",
-                  (int2bin(Y1, padding=4), K)]])
+    text.append(format_line(atr, "TS"))
+    text.append(format_line(atr, "T0"))
 
     for i in (1, 2, 3, 4, 5):
         separator = False
         for p in ("A", "B", "C", "D"):
-            key = "T%s%d" % (p, i)
-            if key in atr:
-                v = atr[key]
-                t = [" T%s(%d) = 0x%02X" % (p, i, v)]
-                t.append(eval("%s(%d)" % (key, v)))
+            key = "T%s" % p
+            if key in atr and i in atr[key]:
+                t = [" T%s(%d) = 0x%02X" % (p, i, atr[key][i]["value"]), atr[key][i]["description"]]
                 text.append(t)
                 separator = True
         if separator:
             text.append(["----"])
 
     if "hb" in atr:
-        t = ["Historical bytes"]
-        t.append(toHexString(atr["hb"]))
-        text.append(t)
-
-        t = analyse_histrorical_bytes(atr, atr["hb"])
-        if t:
-            text.append(t)
+        text.append(["Historical bytes",
+                toHexString(atr["hb"]["value"])])
+        desc = atr["hb"]["description"]
+        if desc:
+            text.append(desc)
 
     if "TCK" in atr:
-        t = ["TCK = 0x%02X " % atr["TCK"]]
-        tck = compute_tck(atr)
-        if tck == atr["TCK"]:
-            t.append("correct checksum")
-        else:
-            t.append("WRONG CHECKSUM, expected 0x%02X" % tck)
-        text.append(t)
+        text.append(format_line(atr, "TCK"))
 
     if "extra" in atr:
         text.append(["Extra bytes", toHexString(atr["extra"])])
-        atr["warning"] = "Extra bytes: " + toHexString(atr["extra"])
 
     return "\n".join([colorize(t) for t in text])
 
