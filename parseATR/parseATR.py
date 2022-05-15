@@ -1361,6 +1361,24 @@ def documentATR(atr):
 
     return atr
 
+def simplifyDescription(atr_orig):
+    atr = dict(atr_orig)
+    for key in atr:
+        if not isinstance(atr[key], dict):
+            continue
+        if key == "hb":
+            if atr["hb"]["description"] == None:
+                continue
+            r = list()
+            for l in atr["hb"]["description"]:
+                r.append(colorize_line(l, "", ""))
+            atr["hb"]["description"] = r
+        elif "description" in atr[key]:
+            atr[key]["description"] = colorize_line(atr[key]["description"], "", "")
+        else:
+            for key2 in atr[key]:
+                atr[key][key2]["description"] = colorize_line(atr[key][key2]["description"], "", "")
+    return atr
 
 def format_line(atr, key):
     return ["%s = 0x%02X" % (key, atr[key]["value"]), atr[key]["description"]]
