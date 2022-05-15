@@ -1,9 +1,9 @@
 # pyscard-contrib
 
-This repository contains contributions to PySCard http://pyscard.sourceforge.net/.
+This repository contains contributions to PySCard https://pyscard.sourceforge.io/
 
 ## parseATR
 
 This Python code parses a smart card ATR and display the result.
 
-The code is used at http://smartcard-atr.appspot.com/
+The code is used at https://smartcard-atr.apdu.fr/
