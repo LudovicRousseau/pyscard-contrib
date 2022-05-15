@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """
     stress_test.py
     Copyright (C) 2009-2010   Ludovic Rousseau
@@ -36,21 +36,21 @@ def stress(atr_list):
 
         # remove traling newline
         atr = atr.rstrip()
-        print "ATR:", atr
+        print("ATR:", atr)
 
         try:
             txt = parseATR.atr_display_txt(parseATR.parseATR(atr))
-        except parseATR.ParseAtrException, e:
-            print e
+        except parseATR.ParseAtrException as e:
+            print(e)
         else:
-            print txt
+            print(txt)
             card = parseATR.match_atr(atr)
             if card:
-                print "Possibly identified card:", "\n\t".join(card)
+                print("Possibly identified card:", "\n\t".join(card))
             else:
-                print "Unknown card"
+                print("Unknown card")
 
-        print
+        print()
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
