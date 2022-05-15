@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 """
     parseATR: convert an ATR in a human readable format
-    Copyright (C) 2009-2016   Ludovic Rousseau
+    Copyright (C) 2009-2022   Ludovic Rousseau
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

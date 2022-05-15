@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 """
     stress_test.py
-    Copyright (C) 2009-2010   Ludovic Rousseau
+    Copyright (C) 2009-2022   Ludovic Rousseau
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
