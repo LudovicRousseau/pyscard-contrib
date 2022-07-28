@@ -256,6 +256,36 @@ def decomposeATR(atr_txt):
     return atr
 
 
+def TA1_v(v):
+    """Parse TA1 value
+
+    Args:
+        v: TA1
+    Returns:
+        (Fi, Di, cycles/ETU, Freq_Max)
+        or
+        (Fi, Di) for invalid Fi or Di values
+
+    >>> TA1_v(0x11)
+    (372, 1, 372.0, 5)
+    """
+    Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024,
+          1536, 2048, "RFU", "RFU")
+    Di = ("RFU", 1, 2, 4, 8, 16, 32, 64, 12, 20, "RFU", "RFU", "RFU", "RFU",
+          "RFU", "RFU")
+    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU",
+            "RFU")
+    F = v >> 4
+    D = v & 0xF
+
+    args = (Fi[F], Di[D])
+    if "RFU" in args:
+        return args
+    else:
+        value = Fi[F] / Di[D]
+        return args + (value, FMax[F])
+
+
 def TA1(v):
     """Parse TA1 value
 
@@ -267,24 +297,16 @@ def TA1(v):
     >>> TA1(0x11)
     ['Fi=%s, Di=%s, %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)', (372, 1, 372, 10752, 13440, 5)]
     """
-    Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024,
-          1536, 2048, "RFU", "RFU")
-    Di = ("RFU", 1, 2, 4, 8, 16, 32, 64, 12, 20, "RFU", "RFU", "RFU", "RFU",
-          "RFU", "RFU")
-    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU",
-            "RFU")
-    F = v >> 4
-    D = v & 0xF
+    args = TA1_v(v)
 
     text = "Fi=%s, Di=%s"
-    args = (Fi[F], Di[D])
-    if "RFU" in [Fi[F], Di[D]]:
+    if len(args) == 2:
         text += ", INVALID VALUE"
     else:
-        value = Fi[F] / Di[D]
+        (Fi, Di, value, FMax) = args
         text += ", %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)"
-        args += (value, int(4000000 / value), int(FMax[F] * 1000000 /
-                value), FMax[F])
+        args = (Fi, Di, value, int(4000000 / value), int(FMax * 1000000 /
+                value), FMax)
 
     return [text, args]
 
