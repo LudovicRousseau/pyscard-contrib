@@ -21,16 +21,18 @@
 import pprint
 from parseATR import TA1_v
 
-clock = 3700000
+clocks = (3700000, 4800000, 12000000)
 
 all_TA1 = dict()
 pp = pprint.PrettyPrinter(indent=4)
 
-for TA1 in range(0, 256):
-    v = TA1_v(TA1)
-    if not "RFU" in v:
-        (Fi, Di, value, FMax) = v
-        all_TA1[TA1] = int(clock / value)
+for clock in clocks:
+    for TA1 in range(0, 256):
+        v = TA1_v(TA1)
+        if not "RFU" in v:
+            (Fi, Di, value, FMax) = v
+            if clock < FMax * 1000000:
+                all_TA1[(TA1, clock)] = int(clock / value)
 
 # pp.pprint(all_TA1)
 
@@ -39,6 +41,7 @@ for k, v in all_TA1.items():
     all_speeds[v] = list()
 
 for k, v in all_TA1.items():
-    all_speeds[v].append("0x%02X" % k)
+    TA1, clock = k
+    all_speeds[v].append(("0x%02X" % TA1, clock / 1000000))
 
 pp.pprint(all_speeds)
