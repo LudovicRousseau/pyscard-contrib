@@ -1582,6 +1582,7 @@ if __name__ == "__main__":
         normal = "\033[0m"
         print(red + "Error: " + atr["warning"] + normal)
 
+    print()
     try_again = True
     while (try_again):
         card = match_atr_differentiated(ATR)
