@@ -20,6 +20,8 @@
 
 from __future__ import print_function
 import re
+import os
+import time
 
 ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
@@ -1470,6 +1472,14 @@ def match_atr(atr, atr_file=None):
 
     return result
 
+def get_ATR_cache_filename():
+    """Get the ATR file name in cache directory
+    """
+    try:
+        cache = os.environ['XDG_CACHE_HOME']
+    except KeyError:
+        cache = os.environ['HOME'] + "/.cache"
+    return cache + "/smartcard_list.txt"
 
 def match_atr_differentiated(atr, atr_file=None):
     """Try to find card description for a given ATR.
@@ -1493,11 +1503,7 @@ def match_atr_differentiated(atr, atr_file=None):
         import os
         db_list = list()
 
-        try:
-            cache = os.environ['XDG_CACHE_HOME']
-        except KeyError:
-            cache = os.environ['HOME'] + "/.cache"
-        db_list.append(cache + "/smartcard_list.txt")
+        db_list.append(get_ATR_cache_filename())
 
         db_list += [os.environ['HOME'] + "/.smartcard_list.txt",
                     "/usr/local/pcsc/smartcard_list.txt",
@@ -1541,6 +1547,25 @@ def match_atr_differentiated(atr, atr_file=None):
     file.close()
     return cards
 
+def update_smartcard_list():
+    """ Update the ATR cache file if too old
+    """
+    filename = get_ATR_cache_filename()
+
+    try:
+        stat = os.stat(filename)
+        # file younger than 10 hours?
+        if time.time() - stat.st_mtime < 10*60*60:
+            return False
+    except FileNotFoundError:
+        pass
+
+    url = "https://pcsc-tools.apdu.fr/smartcard_list.txt"
+    print(f"Updating {filename} using {url}")
+
+    os.system(f"curl --silent --show-error --user-agent 'ATR_analysis curl' {url} --output {filename}")
+    return True
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
@@ -1556,23 +1581,30 @@ if __name__ == "__main__":
         red = "\033[31m"
         normal = "\033[0m"
         print(red + "Error: " + atr["warning"] + normal)
-    print()
 
-    card = match_atr_differentiated(ATR)
-    if card:
-        # exact match
-        if ATR in card:
-            print("Exact match:", ATR)
-            for d in card[ATR]:
-                print("\t", d)
+    try_again = True
+    while (try_again):
+        card = match_atr_differentiated(ATR)
+        if card:
+            try_again = False
 
-            # remove the entry so it is not displayed as "RE match"
-            del card[ATR]
+            # exact match
+            if ATR in card:
+                print("Exact match:", ATR)
+                for d in card[ATR]:
+                    print("\t", d)
 
-        # RE match
-        for atr in card:
-            print("Possibly identified card:", atr)
-            for d in card[atr]:
-                print("\t", d)
-    else:
-        print("Unknown card")
+                # remove the entry so it is not displayed as "RE match"
+                del card[ATR]
+
+            # RE match
+            for atr in card:
+                print("Possibly identified card:", atr)
+                for d in card[atr]:
+                    print("\t", d)
+        else:
+            print("Unknown card")
+
+            if not update_smartcard_list():
+                # cache list not updated, no need to try again
+                try_again = False
