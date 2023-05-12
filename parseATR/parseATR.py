@@ -1254,25 +1254,25 @@ def colorize_html(l):
     right = '</span>'
 
     blog = {
-            'TS': "2016/02/atr-statistics-ts-initial-character.html",
-            'T0': "2016/03/atr-statistics-t0-format-byte.html",
-            'TA(1)': "2016/04/atr-statistics-ta1-global-encodes-fi.html",
-            'TB(1)': "2016/08/atr-statistics-tb1-global-deprecated.html",
-            'TC(1)': "2016/09/atr-statistics-tc1-global-encodes-n.html",
-            'TD(1)': "2016/11/atr-statistics-td1-structural-encodes.html",
-            'TA(2)': "2016/12/atr-statistics-ta2-global-specific-mode.html",
-            'TB(2)': "2016/12/atr-statistics-tb2-global-deprecated.html",
-            'TC(2)': "2017/03/atr-statistics-tc2-specific-to-t0.html",
-            'TD(2)': "2017/09/atr-statistics-td2-structural-encodes.html",
-            'TA(3)': "017/09/atr-statistics-ta3-specific-to-t-after.html",
-            'TB(3)': "2018/05/atr-statistics-tb3-global-after-t15-in.html",
-            'TC(3)': "2019/03/atr-statistics-tc3.html",
-            'TD(3)': "2019/03/atr-statistics-td3-structural-encodes.html",
-            'TA(4)': "2019/03/atr-statistics-ta4.html",
-            'TB(4)': "2020/01/atr-statistics-tb4-global-after-t15-in.html",
-            'TC(4)': "2020/03/atr-statistics-tc4.html",
-            'Historical bytes': "2020/03/atr-statistics-historical-bytes.html",
-            'TCK': "2020/03/atr-statistics-tck-check-byte-tck.html"
+            'TS': "2016/02/atr-statistics-ts-initial-character/",
+            'T0': "2016/03/atr-statistics-t0-format-byte/",
+            'TA(1)': "2016/04/atr-statistics-ta1-global-encodes-fi/",
+            'TB(1)': "2016/08/atr-statistics-tb1-global-deprecated/",
+            'TC(1)': "2016/09/atr-statistics-tc1-global-encodes-n/",
+            'TD(1)': "2016/11/atr-statistics-td1-structural-encodes/",
+            'TA(2)': "2016/12/atr-statistics-ta2-global-specific-mode/",
+            'TB(2)': "2016/12/atr-statistics-tb2-global-deprecated/",
+            'TC(2)': "2017/03/atr-statistics-tc2-specific-to-t0/",
+            'TD(2)': "2017/09/atr-statistics-td2-structural-encodes/",
+            'TA(3)': "2017/09/atr-statistics-ta3-specific-to-t-after/",
+            'TB(3)': "2018/05/atr-statistics-tb3-global-after-t15-in/",
+            'TC(3)': "2019/03/atr-statistics-tc3/",
+            'TD(3)': "2019/03/atr-statistics-td3-structural-encodes/",
+            'TA(4)': "2019/03/atr-statistics-ta4/",
+            'TB(4)': "2020/01/atr-statistics-tb4-global-after-t15-in/",
+            'TC(4)': "2020/03/atr-statistics-tc4/",
+            'Historical bytes': "2020/03/atr-statistics-historical-bytes/",
+            'TCK': "2020/03/atr-statistics-tck-check-byte-tck/"
             }
 
     text = html_escape(l[0])
@@ -1281,10 +1281,10 @@ def colorize_html(l):
         (name, value) = l[0].split("=")
         name = name.strip()
         if name in blog:
-            name = '<a href="https://ludovicrousseau.blogspot.com/%s">%s</a>' % (blog[name], name)
+            name = '<a href="https://blog.apdu.fr/posts/%s">%s</a>' % (blog[name], name)
         text = "%s = %s" % (name, value)
     elif text == "Historical bytes":
-        text = '<a href="https://ludovicrousseau.blogspot.com/%s">%s</a>' % (blog[text], text)
+        text = '<a href="https://blog.apdu.fr/posts/%s">%s</a>' % (blog[text], text)
 
     text = '<tr><th>' + text + '</th>'
     if len(l) > 1:
