@@ -1615,3 +1615,8 @@ if __name__ == "__main__":
             if not update_smartcard_list():
                 # cache list not updated, no need to try again
                 try_again = False
+
+                print()
+                print("Please submit your unknown card at:")
+                print("https://smartcard-atr.apdu.fr/parse?ATR=%s" %
+                      toHexString(normalize(ATR), pack=True))
