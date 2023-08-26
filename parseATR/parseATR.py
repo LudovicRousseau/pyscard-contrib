@@ -38,7 +38,7 @@ class ParseAtrException(Exception):
         return self.text
 
 
-def toHexString(bytes):
+def toHexString(bytes, pack=False):
     """Returns a hex list
 
     Args:
@@ -48,8 +48,14 @@ def toHexString(bytes):
 
     >>> toHexString([1,2,3, 10, 255])
     '01 02 03 0A FF'
+    >>> toHexString([1,2,3, 10, 255], pack=True)
+    '0102030AFF'
     """
-    return " ".join(["%02X" % b for b in bytes])
+    if pack:
+        sep = ""
+    else:
+        sep = " "
+    return sep.join(["%02X" % b for b in bytes])
 
 
 def toASCIIString(bytes):
