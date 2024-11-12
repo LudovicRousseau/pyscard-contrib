@@ -1508,6 +1508,7 @@ def match_atr_differentiated(atr, atr_file=None):
     if atr_file is None:
         import os
         db_list = list()
+        file = None
 
         db_list.append(get_ATR_cache_filename())
 
@@ -1522,6 +1523,8 @@ def match_atr_differentiated(atr, atr_file=None):
                 break
             except:
                 pass
+        if file is None:
+            return
     else:
         file = open(atr_file)
 
