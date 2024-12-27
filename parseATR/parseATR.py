@@ -1397,7 +1397,7 @@ def simplifyDescription(atr_orig):
         if not isinstance(atr[key], dict):
             continue
         if key == "hb":
-            if atr["hb"]["description"] == None:
+            if atr["hb"]["description"] is None:
                 continue
             r = []
             for l in atr["hb"]["description"]:
