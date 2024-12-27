@@ -96,7 +96,7 @@ def normalize(atr):
     atr = atr.replace(":", "")
     atr = atr.replace(" ", "")
 
-    res = list()
+    res = []
     while len(atr) >= 2:
         byte, atr = atr[:2], atr[2:]
         res.append(byte)
@@ -494,7 +494,7 @@ def TBn(i, v):
         value according to ISO 7816-3
     """
     text = "Undocumented"
-    args = list()
+    args = []
     if (T == 1):
         BWI = v >> 4
         CWI = v % 16
@@ -585,8 +585,8 @@ def TCn(i, v):
     Returns:
         value according to ISO 7816-3
     """
-    text = list()
-    args = list()
+    text = []
+    args = []
     if (T == 1):
         text.append("Error detection code: %s")
         if (v == 1):
@@ -723,7 +723,7 @@ def data_coding(dc):
         Text value
 
     """
-    text = list()
+    text = []
 
     if dc & 128:
         text.append("        - EF of TLV structure supported\n")
@@ -756,7 +756,7 @@ def selection_methods(sm):
     Returns:
         Text value
     """
-    text = list()
+    text = []
 
     if sm & 1:
         text.append("        - Record identifier supported\n")
@@ -797,7 +797,7 @@ def selection_mode(sm):
     Returns:
         Text value
     """
-    text = list()
+    text = []
 
     if sm & 1:
         text.append("        - Record identifier supported\n")
@@ -839,7 +839,7 @@ def command_chaining(cc):
     Returns:
         Text value
     """
-    text = list()
+    text = []
 
     if cc & 128:
         text.append("        - Command chaining\n")
@@ -872,7 +872,7 @@ def card_service(cs):
     Returns:
         Text value
     """
-    text = list()
+    text = []
 
     if cs & 128:
         text.append("        - Application selection: by full DF name\n")
@@ -922,7 +922,7 @@ def safe_get(historical_bytes, number):
     >>> safe_get([1,2,3], 4)
     [1, 2, 3, 0]
     """
-    result = list()
+    result = []
     for i in range(number):
         try:
             v = historical_bytes[i]
@@ -954,8 +954,8 @@ def compact_tlv(atr, historical_bytes):
     tag = int(tlv / 16)
     len = tlv % 16
 
-    text = list()
-    args = list()
+    text = []
+    args = []
 
     text.append("    Tag: %d, Len: %d (%%s)\n" % (tag, len))
 
@@ -1081,8 +1081,8 @@ def analyse_historical_bytes(atr, historical_bytes):
     >>> analyse_historical_bytes({}, [128, 101, 162, 8, 1, 1, 82])
     ['  Category indicator byte: 0x80', [' (compact TLV data object)\\n Tag: 6, Len: 5 (%s)\\n Data: %s "%s"\\n', ('pre-issuing data', 'A2 08 01 01 52', '....R')]]
     """
-    text = list()
-    args = list()
+    text = []
+    args = []
 
     # return if we have NO historical bytes
     if len(historical_bytes) == 0:
@@ -1241,7 +1241,7 @@ def html_escape(text):
     >>> html_escape("&")
     '&amp;'
     """
-    L = list()
+    L = []
     for c in text:
         L.append(html_escape_table.get(c, c))
     return "".join(L)
@@ -1399,7 +1399,7 @@ def simplifyDescription(atr_orig):
         if key == "hb":
             if atr["hb"]["description"] == None:
                 continue
-            r = list()
+            r = []
             for l in atr["hb"]["description"]:
                 r.append(colorize_line(l, "", ""))
             atr["hb"]["description"] = r
@@ -1423,7 +1423,7 @@ def atr_display(atr, colorize):
     Returns:
         Text
     """
-    text = list()
+    text = []
     text.append(format_line(atr, "TS"))
     text.append(format_line(atr, "T0"))
 
@@ -1472,7 +1472,7 @@ def match_atr(atr, atr_file=None):
     cards = match_atr_differentiated(atr, atr_file)
 
     # return only the card descriptions to be backward compatible
-    result = list()
+    result = []
     for key in cards:
         result += cards[key]
 
@@ -1507,7 +1507,7 @@ def match_atr_differentiated(atr, atr_file=None):
 
     if atr_file is None:
         import os
-        db_list = list()
+        db_list = []
         file = None
 
         db_list.append(get_ATR_cache_filename())
@@ -1547,7 +1547,7 @@ def match_atr_differentiated(atr, atr_file=None):
         if found:
             # found the ATR
             key = line
-            cards[key] = list()
+            cards[key] = []
             for desc in file:
                 if desc == "\n":
                     break
