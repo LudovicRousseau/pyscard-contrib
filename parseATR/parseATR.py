@@ -29,7 +29,7 @@ T = -1
 
 
 class ParseAtrException(Exception):
-    """ Base class for exceptions in this module """
+    """Base class for exceptions in this module"""
 
     def __init__(self, text):
         self.text = text
@@ -75,7 +75,7 @@ def toASCIIString(bytes):
         if b > 31 and b < 127:
             ascii += chr(b)
         else:
-            ascii += '.'
+            ascii += "."
     return ascii
 
 
@@ -101,7 +101,7 @@ def normalize(atr):
         byte, atr = atr[:2], atr[2:]
         res.append(byte)
     if len(atr) > 0:
-        raise ParseAtrException('warning: odd string, remainder: %r' % atr)
+        raise ParseAtrException("warning: odd string, remainder: %r" % atr)
 
     atr = [int(x, 16) for x in res]
     return atr
@@ -132,29 +132,29 @@ def int2bin(i, padding=8):
 def parseATR(atr_txt):
     """Parses an ATR
 
-    Args:
-        atr_txt: ATR as a hex bytes string
-    Returns:
-        dictionary of field and values
+        Args:
+            atr_txt: ATR as a hex bytes string
+        Returns:
+            dictionary of field and values
 
-    >>> parseATR("3B A7 00 40 18 80 65 A2 08 01 01 52")
-{ 'T0': { 'description': ['Y(1): b%s, K: %d (historical bytes)', ('1010', 7)],
-          'value': 167},
-  'TB': {1: {'description': 'VPP is not electrically connected', 'value': 0}},
-  'TC': { 2: { 'description': 'Work waiting time: 960 x 24 x (Fi/F)',
-               'value': 24}},
-  'TD': { 1: { 'description': ['Y(i+1) = b%s, Protocol T=%d', ('0100', 0)],
-               'value': 64}},
-  'TS': {'description': 'Direct Convention', 'value': 59},
-  'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
-  'hb': { 'description': [ '  Category indicator byte: 0x80',
-                           [ ' (compact TLV data object)\n'
-                             '    Tag: 6, Len: 5 (%s)\n'
-                             '      Data: %s "%s"\n',
-                             ('pre-issuing data', 'A2 08 01 01 52', '....R')]],
-          'value': [128, 101, 162, 8, 1, 1, 82]},
-  'hbn': 7,
-  'pn': 2}
+        >>> parseATR("3B A7 00 40 18 80 65 A2 08 01 01 52")
+    { 'T0': { 'description': ['Y(1): b%s, K: %d (historical bytes)', ('1010', 7)],
+              'value': 167},
+      'TB': {1: {'description': 'VPP is not electrically connected', 'value': 0}},
+      'TC': { 2: { 'description': 'Work waiting time: 960 x 24 x (Fi/F)',
+                   'value': 24}},
+      'TD': { 1: { 'description': ['Y(i+1) = b%s, Protocol T=%d', ('0100', 0)],
+                   'value': 64}},
+      'TS': {'description': 'Direct Convention', 'value': 59},
+      'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
+      'hb': { 'description': [ '  Category indicator byte: 0x80',
+                               [ ' (compact TLV data object)\n'
+                                 '    Tag: 6, Len: 5 (%s)\n'
+                                 '      Data: %s "%s"\n',
+                                 ('pre-issuing data', 'A2 08 01 01 52', '....R')]],
+              'value': [128, 101, 162, 8, 1, 1, 82]},
+      'hbn': 7,
+      'pn': 2}
     """
 
     atr = decomposeATR(atr_txt)
@@ -162,24 +162,25 @@ def parseATR(atr_txt):
 
     return atr
 
+
 def decomposeATR(atr_txt):
     """Decompose the ATR in elementary fields
 
-    Args:
-        atr_txt: ATR as a hex bytes string
-    Returns:
-        dictionary of field and values
+        Args:
+            atr_txt: ATR as a hex bytes string
+        Returns:
+            dictionary of field and values
 
-    >>> decomposeATR("3B A7 00 40 18 80 65 A2 08 01 01 52")
-{ 'T0': {'value': 167},
-  'TB': {1: {'value': 0}},
-  'TC': {2: {'value': 24}},
-  'TD': {1: {'value': 64}},
-  'TS': {'value': 59},
-  'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
-  'hb': {'value': [128, 101, 162, 8, 1, 1, 82]},
-  'hbn': 7,
-  'pn': 2}
+        >>> decomposeATR("3B A7 00 40 18 80 65 A2 08 01 01 52")
+    { 'T0': {'value': 167},
+      'TB': {1: {'value': 0}},
+      'TC': {2: {'value': 24}},
+      'TD': {1: {'value': 64}},
+      'TS': {'value': 59},
+      'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
+      'hb': {'value': [128, 101, 162, 8, 1, 1, 82]},
+      'hbn': 7,
+      'pn': 2}
     """
 
     atr_txt = normalize(atr_txt)
@@ -200,36 +201,36 @@ def decomposeATR(atr_txt):
     # store number of historical bytes
     atr["hbn"] = TDi & 0xF
 
-    while (pointer < len(atr_txt)):
+    while pointer < len(atr_txt):
         # Check TAi is present
-        if ((TDi | 0xEF) == 0xFF):
+        if (TDi | 0xEF) == 0xFF:
             pointer += 1
             if not "TA" in atr:
                 atr["TA"] = dict()
             atr["TA"][pn] = {"value": atr_txt[pointer]}
 
         # Check TBi is present
-        if ((TDi | 0xDF) == 0xFF):
+        if (TDi | 0xDF) == 0xFF:
             pointer += 1
             if not "TB" in atr:
                 atr["TB"] = dict()
             atr["TB"][pn] = {"value": atr_txt[pointer]}
 
         # Check TCi is present
-        if ((TDi | 0xBF) == 0xFF):
+        if (TDi | 0xBF) == 0xFF:
             pointer += 1
             if not "TC" in atr:
                 atr["TC"] = dict()
             atr["TC"][pn] = {"value": atr_txt[pointer]}
 
         # Check TDi is present
-        if ((TDi | 0x7F) == 0xFF):
+        if (TDi | 0x7F) == 0xFF:
             pointer += 1
             if not "TD" in atr:
                 atr["TD"] = dict()
             TDi = atr_txt[pointer]
             atr["TD"][pn] = {"value": TDi}
-            if ((TDi & 0x0F) != ATR_PROTOCOL_TYPE_T0):
+            if (TDi & 0x0F) != ATR_PROTOCOL_TYPE_T0:
                 atr["TCK"] = True
             pn += 1
         else:
@@ -239,7 +240,7 @@ def decomposeATR(atr_txt):
     atr["pn"] = pn
 
     # Store historical bytes
-    atr["hb"] = {"value": atr_txt[pointer + 1: pointer + 1 + hb_length]}
+    atr["hb"] = {"value": atr_txt[pointer + 1 : pointer + 1 + hb_length]}
 
     # Store TCK
     last = pointer + 1 + hb_length
@@ -277,12 +278,43 @@ def TA1_v(v):
     >>> TA1_v(0x11)
     (372, 1, 372.0, 5)
     """
-    Fi = (372, 372, 558, 744, 1116, 1488, 1860, "RFU", "RFU", 512, 768, 1024,
-          1536, 2048, "RFU", "RFU")
-    Di = ("RFU", 1, 2, 4, 8, 16, 32, 64, 12, 20, "RFU", "RFU", "RFU", "RFU",
-          "RFU", "RFU")
-    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU",
-            "RFU")
+    Fi = (
+        372,
+        372,
+        558,
+        744,
+        1116,
+        1488,
+        1860,
+        "RFU",
+        "RFU",
+        512,
+        768,
+        1024,
+        1536,
+        2048,
+        "RFU",
+        "RFU",
+    )
+    Di = (
+        "RFU",
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        12,
+        20,
+        "RFU",
+        "RFU",
+        "RFU",
+        "RFU",
+        "RFU",
+        "RFU",
+    )
+    FMax = (4, 5, 6, 8, 12, 16, 20, "RFU", "RFU", 5, 7.5, 10, 15, 20, "RFU", "RFU")
     F = v >> 4
     D = v & 0xF
 
@@ -313,8 +345,7 @@ def TA1(v):
     else:
         (Fi, Di, value, FMax) = args
         text += ", %g cycles/ETU (%d bits/s at 4.00 MHz, %d bits/s for fMax=%d MHz)"
-        args = (Fi, Di, value, int(4000000 / value), int(FMax * 1000000 /
-                value), FMax)
+        args = (Fi, Di, value, int(4000000 / value), int(FMax * 1000000 / value), FMax)
 
     return [text, args]
 
@@ -333,17 +364,17 @@ def TA2(v):
     F = v >> 4
     D = v & 0xF
     text = ["Protocol to be used in spec mode: T=%s" % (D)]
-    if (F & 0x8):
+    if F & 0x8:
         text.append(" - Unable to change")
     else:
         text.append(" - Capable to change")
 
-    if (F & 0x1):
+    if F & 0x1:
         text.append(" - implicity defined")
     else:
         text.append(" - defined by interface bytes")
 
-    return ''.join(text)
+    return "".join(text)
 
 
 def TA3(v):
@@ -389,27 +420,27 @@ def TAn(i, v):
         value according to ISO 7816-3
     """
     XI = ("not supported", "state L", "state H", "no preference")
-    if (T == 1):
+    if T == 1:
         text = "IFSC: %s"
-        args = (v)
+        args = v
     else:
         F = v >> 6
         D = v % 64
         Class = ["(3G) "]
 
-        if (D & 0x1):
+        if D & 0x1:
             Class.append("A 5V ")
-        if (D & 0x2):
+        if D & 0x2:
             Class.append("B 3V ")
-        if (D & 0x4):
+        if D & 0x4:
             Class.append("C 1.8V ")
-        if (D & 0x8):
+        if D & 0x8:
             Class.append("D RFU ")
-        if (D & 0x10):
+        if D & 0x10:
             Class.append("E RFU")
 
         text = "Clock stop: %s - Class accepted by the card: %s"
-        args = (XI[F], ''.join(Class))
+        args = (XI[F], "".join(Class))
     return [text, args]
 
 
@@ -421,14 +452,15 @@ def TB1(v):
     Returns:
         value according to ISO 7816-3
     """
-    I_tab = { 0: "25 milliAmperes",
-             1: "50 milliAmperes",
-             2: "100 milliAmperes",
-             3: "RFU"
-            }
+    I_tab = {
+        0: "25 milliAmperes",
+        1: "50 milliAmperes",
+        2: "100 milliAmperes",
+        3: "RFU",
+    }
     I = (v >> 5) & 3
     PI = v & 0x1F
-    if (PI == 0):
+    if PI == 0:
         text = "VPP is not electrically connected"
     else:
         text = "Programming Param P: %d Volts, I: %s" % (PI, I_tab[I])
@@ -443,12 +475,14 @@ def TB2(v):
     Returns:
         value according to ISO 7816-3
     """
-    text = ["Programming param PI2 (PI1 should be ignored): %d" % v, ]
+    text = [
+        "Programming param PI2 (PI1 should be ignored): %d" % v,
+    ]
     if (v > 49) and (v < 251):
         text.append(" (dV)")
     else:
         text.append(" is RFU")
-    return ''.join(text)
+    return "".join(text)
 
 
 def TB3(v):
@@ -495,24 +529,26 @@ def TBn(i, v):
     """
     text = "Undocumented"
     args = []
-    if (T == 1):
+    if T == 1:
         BWI = v >> 4
         CWI = v % 16
 
         text = "Block Waiting Integer: %d - Character Waiting Integer: %d"
         args = (BWI, CWI)
     else:
-        if (i > 2 and T == 15):
+        if i > 2 and T == 15:
             # see ETSI TS 102 221 V8.3.0 (2009-08)
             # Smart Cards; UICC-Terminal interface;
             # Physical and logical characteristics (Release 8)
-            texts = {0x00: "No additional global interface parameters supported",
-                     0x88: "Secure Channel supported as defined in TS 102 484",
-                     0x8C: "Secured APDU - Platform to Platform required as defined in TS 102 484",
-                     0x82: "eUICC-related functions supported",
-                     0x90: "Low Impedance drivers and protocol available on the I/O line available (see clause 7.2.1)",
-                     0xA0: "UICC-CLF interface supported as defined in TS 102 613",
-                     0xC0: "Inter-Chip USB UICC-Terminal interface supported as defined in TS 102 600"}
+            texts = {
+                0x00: "No additional global interface parameters supported",
+                0x88: "Secure Channel supported as defined in TS 102 484",
+                0x8C: "Secured APDU - Platform to Platform required as defined in TS 102 484",
+                0x82: "eUICC-related functions supported",
+                0x90: "Low Impedance drivers and protocol available on the I/O line available (see clause 7.2.1)",
+                0xA0: "UICC-CLF interface supported as defined in TS 102 613",
+                0xC0: "Inter-Chip USB UICC-Terminal interface supported as defined in TS 102 600",
+            }
             text = texts.get(v, "RFU")
     return [text, args]
 
@@ -527,7 +563,7 @@ def TC1(v):
     """
     text = "Extra guard time: %d"
     args = v
-    if (v == 255):
+    if v == 255:
         text += " (special value)"
     return [text, args]
 
@@ -587,16 +623,16 @@ def TCn(i, v):
     """
     text = []
     args = []
-    if (T == 1):
+    if T == 1:
         text.append("Error detection code: %s")
-        if (v == 1):
+        if v == 1:
             args = "CRC"
         else:
-            if (v == 0):
+            if v == 0:
                 args = "LRC"
             else:
                 args = "RFU"
-    return [''.join(text), args]
+    return ["".join(text), args]
 
 
 def TD1(v):
@@ -741,7 +777,7 @@ def data_coding(dc):
 
     text.append("        - Data unit in quartets: %d\n" % (dc & 15))
 
-    return ''.join(text)
+    return "".join(text)
 
 
 def selection_methods(sm):
@@ -782,7 +818,7 @@ def selection_methods(sm):
     if sm & 128:
         text.append("        - DF selection by full DF name\n")
 
-    return ''.join(text)
+    return "".join(text)
 
 
 def selection_mode(sm):
@@ -823,7 +859,7 @@ def selection_mode(sm):
     if sm & 128:
         text.append("        - DF selection by full DF name\n")
 
-    return ''.join(text)
+    return "".join(text)
 
 
 def command_chaining(cc):
@@ -851,13 +887,17 @@ def command_chaining(cc):
         text.append("        - RFU (should not happen)\n")
 
     v = (cc >> 3) & 3
-    t = ["No logical channel\n", "by the interface device\n", "by the card\n",
-         "by the interface device and card\n"]
+    t = [
+        "No logical channel\n",
+        "by the interface device\n",
+        "by the card\n",
+        "by the interface device and card\n",
+    ]
     text.append("        - Logical channel number assignment: " + t[v])
 
     text.append("        - Maximum number of logical channels: %d\n" % (1 + cc & 7))
 
-    return ''.join(text)
+    return "".join(text)
 
 
 def card_service(cs):
@@ -902,7 +942,7 @@ def card_service(cs):
     else:
         text.append("        - Card with MF\n")
 
-    return ''.join(text)
+    return "".join(text)
 
 
 def safe_get(historical_bytes, number):
@@ -983,19 +1023,19 @@ def compact_tlv(atr, historical_bytes):
 
     elif tag == 4:
         args.append("initial access data")
-        text.append("      Initial access data: %s \"%s\"\n")
+        text.append('      Initial access data: %s "%s"\n')
         args.append(toHexString(historical_bytes[:len]))
         args.append(toASCIIString(historical_bytes[:len]))
 
     elif tag == 5:
         args.append("card issuer's data")
-        text.append("      Card issuer data: %s \"%s\"\n")
+        text.append('      Card issuer data: %s "%s"\n')
         args.append(toHexString(historical_bytes[:len]))
         args.append(toASCIIString(historical_bytes[:len]))
 
     elif tag == 6:
         args.append("pre-issuing data")
-        text.append("      Data: %s \"%s\"\n")
+        text.append('      Data: %s "%s"\n')
         args.append(toHexString(historical_bytes[:len]))
         args.append(toASCIIString(historical_bytes[:len]))
 
@@ -1028,7 +1068,9 @@ def compact_tlv(atr, historical_bytes):
             text.append("      Data coding byte: %d\n%s")
             args.append(dc)
             args.append(data_coding(dc))
-            text.append("      Command chaining, length fields and logical channels: %d\n%s")
+            text.append(
+                "      Command chaining, length fields and logical channels: %d\n%s"
+            )
             args.append(cc)
             args.append(command_chaining(cc))
         else:
@@ -1053,20 +1095,20 @@ def compact_tlv(atr, historical_bytes):
 
     elif tag == 15:
         args.append("application identifier")
-        text.append("      Application identifier: %s \"%s\"\n")
+        text.append('      Application identifier: %s "%s"\n')
         args.append(toHexString(historical_bytes[:len]))
         args.append(toASCIIString(historical_bytes[:len]))
 
     else:
         args.append("unknown")
-        text.append("      Value: %s \"%s\"\n")
+        text.append('      Value: %s "%s"\n')
         args.append(toHexString(historical_bytes[:len]))
         args.append(toASCIIString(historical_bytes[:len]))
 
     # consume len bytes of historic
     del historical_bytes[0:len]
 
-    return [''.join(text), tuple(args)]
+    return ["".join(text), tuple(args)]
 
 
 def analyse_historical_bytes(atr, historical_bytes):
@@ -1101,7 +1143,7 @@ def analyse_historical_bytes(atr, historical_bytes):
             warning = "Error in the ATR: expecting 3 bytes and got %d" % len(hb)
             text.append(warning)
             atr["warning"] = warning
-            return ''.join(text)
+            return "".join(text)
 
         # get the 3 last bytes
         status = hb[-3:]
@@ -1132,12 +1174,27 @@ def analyse_historical_bytes(atr, historical_bytes):
         text.append("   DIR data reference: %d")
         args.append(data_ref)
 
-    elif hb_category in (0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
-                         0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F):
+    elif hb_category in (
+        0x81,
+        0x82,
+        0x83,
+        0x84,
+        0x85,
+        0x86,
+        0x87,
+        0x88,
+        0x89,
+        0x8A,
+        0x8B,
+        0x8C,
+        0x8D,
+        0x8E,
+        0x8F,
+    ):
         text.append(" (Reserved for future use)")
 
     else:
-        text.append(" (proprietary format) \"%s\"")
+        text.append(' (proprietary format) "%s"')
         args.append(toASCIIString(hb))
 
     return [left, ["".join(text), tuple(args)]]
@@ -1220,13 +1277,14 @@ def atr_display_txt(atr):
     """
     return atr_display(atr, colorize_txt)
 
+
 html_escape_table = {
     "&": "&amp;",
     '"': "&quot;",
     "'": "&apos;",
     ">": "&gt;",
     "<": "&lt;",
-    }
+}
 
 
 def html_escape(text):
@@ -1257,29 +1315,29 @@ def colorize_html(l):
         colorized line
     """
     left = '<span class="data">'
-    right = '</span>'
+    right = "</span>"
 
     blog = {
-            'TS': "2016/02/atr-statistics-ts-initial-character/",
-            'T0': "2016/03/atr-statistics-t0-format-byte/",
-            'TA(1)': "2016/04/atr-statistics-ta1-global-encodes-fi/",
-            'TB(1)': "2016/08/atr-statistics-tb1-global-deprecated/",
-            'TC(1)': "2016/09/atr-statistics-tc1-global-encodes-n/",
-            'TD(1)': "2016/11/atr-statistics-td1-structural-encodes/",
-            'TA(2)': "2016/12/atr-statistics-ta2-global-specific-mode/",
-            'TB(2)': "2016/12/atr-statistics-tb2-global-deprecated/",
-            'TC(2)': "2017/03/atr-statistics-tc2-specific-to-t0/",
-            'TD(2)': "2017/09/atr-statistics-td2-structural-encodes/",
-            'TA(3)': "2017/09/atr-statistics-ta3-specific-to-t-after/",
-            'TB(3)': "2018/05/atr-statistics-tb3-global-after-t15-in/",
-            'TC(3)': "2019/03/atr-statistics-tc3/",
-            'TD(3)': "2019/03/atr-statistics-td3-structural-encodes/",
-            'TA(4)': "2019/03/atr-statistics-ta4/",
-            'TB(4)': "2020/01/atr-statistics-tb4-global-after-t15-in/",
-            'TC(4)': "2020/03/atr-statistics-tc4/",
-            'Historical bytes': "2020/03/atr-statistics-historical-bytes/",
-            'TCK': "2020/03/atr-statistics-tck-check-byte-tck/"
-            }
+        "TS": "2016/02/atr-statistics-ts-initial-character/",
+        "T0": "2016/03/atr-statistics-t0-format-byte/",
+        "TA(1)": "2016/04/atr-statistics-ta1-global-encodes-fi/",
+        "TB(1)": "2016/08/atr-statistics-tb1-global-deprecated/",
+        "TC(1)": "2016/09/atr-statistics-tc1-global-encodes-n/",
+        "TD(1)": "2016/11/atr-statistics-td1-structural-encodes/",
+        "TA(2)": "2016/12/atr-statistics-ta2-global-specific-mode/",
+        "TB(2)": "2016/12/atr-statistics-tb2-global-deprecated/",
+        "TC(2)": "2017/03/atr-statistics-tc2-specific-to-t0/",
+        "TD(2)": "2017/09/atr-statistics-td2-structural-encodes/",
+        "TA(3)": "2017/09/atr-statistics-ta3-specific-to-t-after/",
+        "TB(3)": "2018/05/atr-statistics-tb3-global-after-t15-in/",
+        "TC(3)": "2019/03/atr-statistics-tc3/",
+        "TD(3)": "2019/03/atr-statistics-td3-structural-encodes/",
+        "TA(4)": "2019/03/atr-statistics-ta4/",
+        "TB(4)": "2020/01/atr-statistics-tb4-global-after-t15-in/",
+        "TC(4)": "2020/03/atr-statistics-tc4/",
+        "Historical bytes": "2020/03/atr-statistics-historical-bytes/",
+        "TCK": "2020/03/atr-statistics-tck-check-byte-tck/",
+    }
 
     text = html_escape(l[0])
     if "=" in text:
@@ -1292,15 +1350,15 @@ def colorize_html(l):
     elif text == "Historical bytes":
         text = '<a href="https://blog.apdu.fr/posts/%s">%s</a>' % (blog[text], text)
 
-    text = '<tr><th>' + text + '</th>'
+    text = "<tr><th>" + text + "</th>"
     if len(l) > 1:
         t = ""
         for line in l[1:]:
             colored_line = colorize_line(line, left, right)
             t += colored_line
 
-        if '\n' in t:
-            lines = t.split('\n');
+        if "\n" in t:
+            lines = t.split("\n")
             lines_out = []
             for line in lines:
                 count = 0
@@ -1308,15 +1366,15 @@ def colorize_html(l):
                 hasLeft = False
                 if line.startswith(left):
                     hasLeft = True
-                    line = line[len(left):]
+                    line = line[len(left) :]
 
                 hasRight = False
                 if line.startswith(right):
                     hasRight = True
-                    line = line[len(right):]
+                    line = line[len(right) :]
 
                 while True:
-                    if line[:2] == '  ':
+                    if line[:2] == "  ":
                         count += 1
                         line = line[2:]
                     else:
@@ -1327,11 +1385,11 @@ def colorize_html(l):
                 if hasRight:
                     line = right + line
 
-                lines_out.append("<span class=\"marge\"></span>" * count + line)
-            t = '<br />\n'.join(lines_out)
-        text += '<th><span class="format">' + t + '</span></th></tr>'
+                lines_out.append('<span class="marge"></span>' * count + line)
+            t = "<br />\n".join(lines_out)
+        text += '<th><span class="format">' + t + "</span></th></tr>"
     else:
-        text += '<th></th>'
+        text += "<th></th>"
     return text
 
 
@@ -1361,8 +1419,10 @@ def documentATR(atr):
 
     Y1 = atr["T0"]["value"] >> 4
     K = atr["T0"]["value"] & 0xF
-    atr["T0"]["description"] = ["Y(1): b%s, K: %d (historical bytes)",
-                  (int2bin(Y1, padding=4), K)]
+    atr["T0"]["description"] = [
+        "Y(1): b%s, K: %d (historical bytes)",
+        (int2bin(Y1, padding=4), K),
+    ]
 
     for i in (1, 2, 3, 4, 5):
         separator = False
@@ -1391,6 +1451,7 @@ def documentATR(atr):
 
     return atr
 
+
 def simplifyDescription(atr_orig):
     atr = dict(atr_orig)
     for key in atr:
@@ -1400,6 +1461,7 @@ def simplifyDescription(atr_orig):
             if atr["hb"]["description"] is None:
                 continue
             r = []
+            print(atr["hb"]["description"])
             for l in atr["hb"]["description"]:
                 r.append(colorize_line(l, "", ""))
             atr["hb"]["description"] = r
@@ -1407,11 +1469,15 @@ def simplifyDescription(atr_orig):
             atr[key]["description"] = colorize_line(atr[key]["description"], "", "")
         else:
             for key2 in atr[key]:
-                atr[key][key2]["description"] = colorize_line(atr[key][key2].get("description", ""), "", "")
+                atr[key][key2]["description"] = colorize_line(
+                    atr[key][key2].get("description", ""), "", ""
+                )
     return atr
+
 
 def format_line(atr, key):
     return ["%s = 0x%02X" % (key, atr[key]["value"]), atr[key]["description"]]
+
 
 def atr_display(atr, colorize):
     """Parse an ATR for a given output
@@ -1432,15 +1498,17 @@ def atr_display(atr, colorize):
         for p in ("A", "B", "C", "D"):
             key = "T%s" % p
             if key in atr and i in atr[key]:
-                t = [" T%s(%d) = 0x%02X" % (p, i, atr[key][i]["value"]), atr[key][i]["description"]]
+                t = [
+                    " T%s(%d) = 0x%02X" % (p, i, atr[key][i]["value"]),
+                    atr[key][i]["description"],
+                ]
                 text.append(t)
                 separator = True
         if separator:
             text.append(["----"])
 
     if "hb" in atr:
-        text.append(["Historical bytes",
-                toHexString(atr["hb"]["value"])])
+        text.append(["Historical bytes", toHexString(atr["hb"]["value"])])
         desc = atr["hb"]["description"]
         if desc:
             text.append(desc)
@@ -1478,14 +1546,15 @@ def match_atr(atr, atr_file=None):
 
     return result
 
+
 def get_ATR_cache_filename():
-    """Get the ATR file name in cache directory
-    """
+    """Get the ATR file name in cache directory"""
     try:
-        cache = os.environ['XDG_CACHE_HOME']
+        cache = os.environ["XDG_CACHE_HOME"]
     except KeyError:
-        cache = os.environ['HOME'] + "/.cache"
+        cache = os.environ["HOME"] + "/.cache"
     return cache + "/smartcard_list.txt"
+
 
 def match_atr_differentiated(atr, atr_file=None):
     """Try to find card description for a given ATR.
@@ -1507,15 +1576,18 @@ def match_atr_differentiated(atr, atr_file=None):
 
     if atr_file is None:
         import os
+
         db_list = []
         file = None
 
         db_list.append(get_ATR_cache_filename())
 
-        db_list += [os.environ['HOME'] + "/.smartcard_list.txt",
-                    "/usr/local/pcsc/smartcard_list.txt",
-                    "/usr/share/pcsc/smartcard_list.txt",
-                    "/usr/local/share/pcsc/smartcard_list.txt"]
+        db_list += [
+            os.environ["HOME"] + "/.smartcard_list.txt",
+            "/usr/local/pcsc/smartcard_list.txt",
+            "/usr/share/pcsc/smartcard_list.txt",
+            "/usr/local/share/pcsc/smartcard_list.txt",
+        ]
         for atr_file in db_list:
             try:
                 file = open(atr_file)
@@ -1556,15 +1628,15 @@ def match_atr_differentiated(atr, atr_file=None):
     file.close()
     return cards
 
+
 def update_smartcard_list():
-    """ Update the ATR cache file if too old
-    """
+    """Update the ATR cache file if too old"""
     filename = get_ATR_cache_filename()
 
     try:
         stat = os.stat(filename)
         # file younger than 10 hours?
-        if time.time() - stat.st_mtime < 10*60*60:
+        if time.time() - stat.st_mtime < 10 * 60 * 60:
             return False
     except FileNotFoundError:
         pass
@@ -1572,11 +1644,15 @@ def update_smartcard_list():
     url = "https://pcsc-tools.apdu.fr/smartcard_list.txt"
     print(f"Updating {filename} using {url}")
 
-    os.system(f"curl --silent --show-error --user-agent 'ATR_analysis curl' {url} --output {filename}")
+    os.system(
+        f"curl --silent --show-error --user-agent 'ATR_analysis curl' {url} --output {filename}"
+    )
     return True
+
 
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) > 1:
         ATR = " ".join(sys.argv[1:])
     else:
@@ -1594,7 +1670,7 @@ if __name__ == "__main__":
 
     print()
     try_again = True
-    while (try_again):
+    while try_again:
         card = match_atr_differentiated(ATR)
         if card:
             try_again = False
@@ -1622,5 +1698,7 @@ if __name__ == "__main__":
 
                 print()
                 print("Please submit your unknown card at:")
-                print("https://smartcard-atr.apdu.fr/parse?ATR=%s" %
-                      toHexString(normalize(ATR), pack=True))
+                print(
+                    "https://smartcard-atr.apdu.fr/parse?ATR=%s"
+                    % toHexString(normalize(ATR), pack=True)
+                )
