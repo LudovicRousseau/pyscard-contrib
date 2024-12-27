@@ -1407,7 +1407,7 @@ def simplifyDescription(atr_orig):
             atr[key]["description"] = colorize_line(atr[key]["description"], "", "")
         else:
             for key2 in atr[key]:
-                atr[key][key2]["description"] = colorize_line(atr[key][key2]["description"], "", "")
+                atr[key][key2]["description"] = colorize_line(atr[key][key2].get("description", ""), "", "")
     return atr
 
 def format_line(atr, key):
