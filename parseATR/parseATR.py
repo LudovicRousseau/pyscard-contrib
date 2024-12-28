@@ -1607,14 +1607,10 @@ def update_smartcard_list():
     return True
 
 
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) > 1:
-        ATR = " ".join(sys.argv[1:])
-    else:
-        # ATR = "3B A7 00 40 18 80 65 A2 08 01 01 52"
-        ATR = "3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42 30 36 4E"
+def atr_to_stdout(ATR):
+    """
+    Parse and disply the result on stdout
+    """
     ATR = toHexString(normalize(ATR))
     atr = parseATR(ATR)
     print("ATR:", ATR)
@@ -1659,3 +1655,13 @@ if __name__ == "__main__":
                     "https://smartcard-atr.apdu.fr/parse?ATR=%s"
                     % toHexString(normalize(ATR), PACK)
                 )
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) > 1:
+        _ATR = " ".join(sys.argv[1:])
+    else:
+        # ATR = "3B A7 00 40 18 80 65 A2 08 01 01 52"
+        _ATR = "3F FF 95 00 FF 91 81 71 A0 47 00 44 4E 41 53 50 30 31 31 20 52 65 76 42 30 36 4E"
+    atr_to_stdout(_ATR)
