@@ -1685,9 +1685,9 @@ if __name__ == "__main__":
                 del card[ATR]
 
             # RE match
-            for atr in card:
-                print("Possibly identified card:", atr)
-                for d in card[atr]:
+            for found_atr in card:
+                print("Possibly identified card:", found_atr)
+                for d in card[found_atr]:
                     print("\t", d)
         else:
             print("Unknown card")
