@@ -1550,7 +1550,7 @@ def match_atr_differentiated(atr, atr_file=None):
                 file = open(atr_file)
                 print("Using:", atr_file)
                 break
-            except:
+            except FileNotFoundError:
                 pass
         if file is None:
             return
