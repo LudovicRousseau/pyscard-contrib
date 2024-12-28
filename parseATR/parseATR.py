@@ -165,28 +165,28 @@ def decomposeATR(atr_txt):
         if (TDi | 0xEF) == 0xFF:
             pointer += 1
             if "TA" not in atr:
-                atr["TA"] = dict()
+                atr["TA"] = {}
             atr["TA"][pn] = {"value": atr_txt[pointer]}
 
         # Check TBi is present
         if (TDi | 0xDF) == 0xFF:
             pointer += 1
             if "TB" not in atr:
-                atr["TB"] = dict()
+                atr["TB"] = {}
             atr["TB"][pn] = {"value": atr_txt[pointer]}
 
         # Check TCi is present
         if (TDi | 0xBF) == 0xFF:
             pointer += 1
             if "TC" not in atr:
-                atr["TC"] = dict()
+                atr["TC"] = {}
             atr["TC"][pn] = {"value": atr_txt[pointer]}
 
         # Check TDi is present
         if (TDi | 0x7F) == 0xFF:
             pointer += 1
             if "TD" not in atr:
-                atr["TD"] = dict()
+                atr["TD"] = {}
             TDi = atr_txt[pointer]
             atr["TD"][pn] = {"value": TDi}
             if (TDi & 0x0F) != ATR_PROTOCOL_TYPE_T0:
@@ -1530,7 +1530,7 @@ def match_atr_differentiated(atr, atr_file=None):
     Using: /Users/rousseau/.cache/smartcard_list.txt
     {'3B A7 00 40 .. 80 65 A2 08 .. .. ..': ['Gemplus GemSAFE Smart Card (8K)'], '3B A7 00 40 18 80 65 A2 08 01 01 52': ['Gemplus GPK8000', 'GemSAFE Smart Card (8K)']}
     """
-    cards = dict()
+    cards = {}
     atr = toHexString(normalize(atr))
 
     if atr_file is None:
