@@ -164,28 +164,28 @@ def decomposeATR(atr_txt):
         # Check TAi is present
         if (TDi | 0xEF) == 0xFF:
             pointer += 1
-            if not "TA" in atr:
+            if "TA" not in atr:
                 atr["TA"] = dict()
             atr["TA"][pn] = {"value": atr_txt[pointer]}
 
         # Check TBi is present
         if (TDi | 0xDF) == 0xFF:
             pointer += 1
-            if not "TB" in atr:
+            if "TB" not in atr:
                 atr["TB"] = dict()
             atr["TB"][pn] = {"value": atr_txt[pointer]}
 
         # Check TCi is present
         if (TDi | 0xBF) == 0xFF:
             pointer += 1
-            if not "TC" in atr:
+            if "TC" not in atr:
                 atr["TC"] = dict()
             atr["TC"][pn] = {"value": atr_txt[pointer]}
 
         # Check TDi is present
         if (TDi | 0x7F) == 0xFF:
             pointer += 1
-            if not "TD" in atr:
+            if "TD" not in atr:
                 atr["TD"] = dict()
             TDi = atr_txt[pointer]
             atr["TD"][pn] = {"value": TDi}
