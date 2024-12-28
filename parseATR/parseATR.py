@@ -1143,7 +1143,7 @@ def analyse_historical_bytes(atr, historical_bytes):
             warning = "Error in the ATR: expecting 3 bytes and got %d" % len(hb)
             text.append(warning)
             atr["warning"] = warning
-            return "".join(text)
+            return ["".join(text)]
 
         # get the 3 last bytes
         status = hb[-3:]
