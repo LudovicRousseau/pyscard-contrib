@@ -1534,8 +1534,6 @@ def match_atr_differentiated(atr, atr_file=None):
     atr = toHexString(normalize(atr))
 
     if atr_file is None:
-        import os
-
         db_list = []
         file = None
 
