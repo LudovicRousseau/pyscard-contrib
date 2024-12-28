@@ -18,10 +18,10 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from __future__ import print_function
 import re
 import os
 import time
+from smartcard.util import toHexString, toASCIIString, PACK
 
 ATR_PROTOCOL_TYPE_T0 = 0
 ATR_MAX_PROTOCOLS = 7
@@ -36,47 +36,6 @@ class ParseAtrException(Exception):
 
     def __str__(self):
         return self.text
-
-
-def toHexString(bytes, pack=False):
-    """Returns a hex list
-
-    Args:
-        bytes: list of bytes (integers)
-    Returns:
-        string representing the bytes in hexadecimal
-
-    >>> toHexString([1,2,3, 10, 255])
-    '01 02 03 0A FF'
-    >>> toHexString([1,2,3, 10, 255], pack=True)
-    '0102030AFF'
-    """
-    if pack:
-        sep = ""
-    else:
-        sep = " "
-    return sep.join(["%02X" % b for b in bytes])
-
-
-def toASCIIString(bytes):
-    """Returns a string.
-
-    Args:
-        bytes: list of bytes (integers)
-    Returns:
-        string representing the list of bytes in ASCII. Non ASCII
-        characters are replaced with .
-
-    >>> toASCIIString([72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
-    'Hello world!'
-    """
-    ascii = ""
-    for b in bytes:
-        if b > 31 and b < 127:
-            ascii += chr(b)
-        else:
-            ascii += "."
-    return ascii
 
 
 def normalize(atr):
@@ -1700,5 +1659,5 @@ if __name__ == "__main__":
                 print("Please submit your unknown card at:")
                 print(
                     "https://smartcard-atr.apdu.fr/parse?ATR=%s"
-                    % toHexString(normalize(ATR), pack=True)
+                    % toHexString(normalize(ATR), PACK)
                 )
