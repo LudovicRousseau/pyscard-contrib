@@ -1420,7 +1420,6 @@ def simplifyDescription(atr_orig):
             if atr["hb"]["description"] is None:
                 continue
             r = []
-            print(atr["hb"]["description"])
             for l in atr["hb"]["description"]:
                 r.append(colorize_line(l, "", ""))
             atr["hb"]["description"] = r
