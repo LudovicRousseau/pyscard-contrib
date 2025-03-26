@@ -1168,12 +1168,17 @@ def compute_tck(atr):
     Returns:
         TCK value
     """
+    tmp_atr = atr["atr"]
     # do not include TS byte
-    s = atr["atr"][0]
-    for e in atr["atr"]:
+    tmp_atr = tmp_atr[1:]
+    if "extra" in atr:
+        # remove extra bytes
+        tmp_atr = tmp_atr[:-len(atr["extra"])]
+    s = 0
+    for e in tmp_atr:
         s ^= e
     # remove TCK
-    s ^= atr["atr"][-1]
+    s ^= tmp_atr[-1]
     return s
 
 
