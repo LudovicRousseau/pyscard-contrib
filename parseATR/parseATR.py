@@ -1,21 +1,21 @@
 #! /usr/bin/env python3
 """
-    parseATR: convert an ATR in a human readable format
-    Copyright (C) 2009-2022   Ludovic Rousseau
+parseATR: convert an ATR in a human readable format
+Copyright (C) 2009-2022   Ludovic Rousseau
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
 import re
@@ -1173,7 +1173,7 @@ def compute_tck(atr):
     tmp_atr = tmp_atr[1:]
     if "extra" in atr:
         # remove extra bytes
-        tmp_atr = tmp_atr[:-len(atr["extra"])]
+        tmp_atr = tmp_atr[: -len(atr["extra"])]
     s = 0
     for e in tmp_atr:
         s ^= e
@@ -1659,6 +1659,7 @@ def atr_to_stdout(ATR):
                     "https://smartcard-atr.apdu.fr/parse?ATR=%s"
                     % toHexString(normalize(ATR), PACK)
                 )
+
 
 if __name__ == "__main__":
     import sys
