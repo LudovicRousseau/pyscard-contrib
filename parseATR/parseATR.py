@@ -112,8 +112,7 @@ def parseATR(atr_txt):
                                  '      Data: %s "%s"\n',
                                  ('pre-issuing data', 'A2 08 01 01 52', '....R')]],
               'value': [128, 101, 162, 8, 1, 1, 82]},
-      'hbn': 7,
-      'pn': 2}
+      'hbn': 7}
     """
 
     atr = decomposeATR(atr_txt)
@@ -138,8 +137,7 @@ def decomposeATR(atr_txt):
       'TS': {'value': 59},
       'atr': [59, 167, 0, 64, 24, 128, 101, 162, 8, 1, 1, 82],
       'hb': {'value': [128, 101, 162, 8, 1, 1, 82]},
-      'hbn': 7,
-      'pn': 2}
+      'hbn': 7}
     """
 
     atr_txt = normalize(atr_txt)
@@ -194,9 +192,6 @@ def decomposeATR(atr_txt):
             pn += 1
         else:
             break
-
-    # Store number of protocols
-    atr["pn"] = pn
 
     # Store historical bytes
     atr["hb"] = {"value": atr_txt[pointer + 1 : pointer + 1 + hb_length]}
