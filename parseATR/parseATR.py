@@ -849,7 +849,7 @@ def command_chaining(cc):
     ]
     text.append("        - Logical channel number assignment: " + t[v])
 
-    text.append("        - Maximum number of logical channels: %d\n" % (1 + cc & 7))
+    text.append("        - Maximum number of logical channels: %d\n" % (1 + (cc & 7)))
 
     return "".join(text)
 
