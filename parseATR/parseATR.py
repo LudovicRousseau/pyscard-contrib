@@ -981,7 +981,7 @@ def compact_tlv(atr, historical_bytes):
             cs = historical_bytes[0]
         except IndexError:
             warning = "Error in the ATR: expecting 1 byte and got 0\n"
-            text.append(warning)
+            text.append("      " + warning)
             atr["warning"] = warning
         else:
             text.append("      Card service data byte: %d\n%s")
@@ -1012,7 +1012,7 @@ def compact_tlv(atr, historical_bytes):
                 sm = historical_bytes[0]
             except IndexError:
                 warning = "Error in the ATR: expecting 1 byte and got 0\n"
-                text.append(warning)
+                text.append("      " + warning)
                 atr["warning"] = warning
             else:
                 text.append("      Selection methods: %d\n%s")
